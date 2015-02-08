@@ -49,7 +49,7 @@ class Building < ActiveRecord::Base
 	
 	attribute :name, :string
 	attribute :width, :float
-	attribute :height, as: :float
+	attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
 	attribute :storeys, :integer
 	attribute :finished, :boolean
 	attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
@@ -100,6 +100,7 @@ Now let's put a Door on a Building:
 ```ruby
 class Building ...
   embeds_one :door
+  embeds_one :secret_door, class_name: 'Door'
 end
 ```
 
@@ -110,6 +111,8 @@ building.build_door
 building.door.clear_distance = 30
 building.door.opening_force = 20
 building.door.open_handle = %w{pull knob}
+building.build_secret_door
+building.secret_door.clear_distance = 3
 building.save
 ```
 
@@ -124,6 +127,7 @@ def resource_params
 	params.require(:building).permit :name, :height, door_attributes: [:door_type]
 end
 
+# in the view, with a bonus plus for Slim templates:
 = simple_form_for @building do |form|
 	= form.input :name, as: :string
 	= form.input :height, as: :float
