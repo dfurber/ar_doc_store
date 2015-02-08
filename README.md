@@ -30,7 +30,7 @@ The first thing you need to do is create a migration that adds a column called "
 change_table :buildings do |t|
 	t.json :data
 end
-``
+```
 
 Then in the model file:
 
