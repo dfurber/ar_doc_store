@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["David Furber"]
   spec.email         = ["dfurber@gorges.us"]
   spec.summary       = %q{A document storage gem meant for ActiveRecord PostgresQL JSON storage.}
-  spec.description   = %q{TODO: Write a longer description}
-  spec.homepage      = ""
+  spec.description   = %q{Provides an easy way to do something that is possible in Rails but still a bit close to the metal using store_accessor: create typecasted, persistent attributes that are not columns in the database but stored in the JSON "data" column. Also supports infinite nesting of embedded models.}
+  spec.homepage      = "https://github.com/dfurber/ar_doc_store"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
