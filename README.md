@@ -231,7 +231,7 @@ end
 2. Ransackers for embedded model attributes. (I haven't needed yet...)
 3. Refactor the EmbedsOne and EmbedsMany modules to use a Builder class instead of procedural metaprogramming. (Hello Code Climate...)
 4. Currently when you mass-assign values to an embedded model, you need to assign all the values. It basically replaces what is there with what you send in, removing what has :_destroy set. I would be nice if it could do a smarter find or create behavior.
-
+5. It would be nice if you could use the AR fluent query API on stored attributes, where is knows to replace, say, "name" with "data->>name" but I don't see how to do that, and Ransack provides a nice enough wrapper around ARel to get the job done another way.
 
 ## Contributing
 

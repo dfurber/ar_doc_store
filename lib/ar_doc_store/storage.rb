@@ -48,10 +48,8 @@ module ArDocStore
         type = args.shift if args.first.is_a?(Symbol)
         options = args.extract_options!
         type ||= options.delete(:as) || :string
-        class_name = ArDocStore.mappings[type]
-        unless const_defined?(class_name)
-          raise "Invalid attribute type: #{name}"
-        end
+        class_name = ArDocStore.mappings[type] || "ArDocStore::AttributeTypes::#{type.to_s.classify}Attribute"
+        raise "Invalid attribute type: #{name}" unless const_defined?(class_name)
         class_name = class_name.constantize
         class_name.build self, name, options
       end
@@ -94,13 +92,11 @@ module ArDocStore
       def store_attribute_from_class(class_name, key)
         define_method key.to_sym, -> {
           ivar = "@#{key}"
-          existing = instance_variable_get ivar
-          existing || begin
+          instance_variable_get(ivar) || begin
             item = read_store_attribute(:data, key)
             class_name = class_name.constantize if class_name.respond_to?(:constantize)
             item = class_name.new(item) unless item.is_a?(class_name)
             instance_variable_set ivar, item
-            item
           end
         }
         define_method "#{key}=".to_sym, -> (value) {
@@ -109,7 +105,6 @@ module ArDocStore
           value = class_name.new(value) unless value.is_a?(class_name)
           instance_variable_set ivar, value
           write_store_attribute :data, key, value
-          # data_will_change! if @initialized
         }
       end
 
