@@ -127,7 +127,7 @@ def resource_params
 	params.require(:building).permit :name, :height, door_attributes: [:door_type]
 end
 
-# in the view, with a bonus plus for Slim templates:
+# in the view, with a bonus plug for Slim templates:
 = simple_form_for @building do |form|
 	= form.input :name, as: :string
 	= form.input :height, as: :float
@@ -151,6 +151,7 @@ end
 
 class Building ...
 	embeds_many :rooms
+	embeds_one :foyer, class_name: 'Room'
 end
 
 building = Building.new
