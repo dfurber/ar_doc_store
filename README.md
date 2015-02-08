@@ -226,6 +226,13 @@ class BooleanInput < SimpleForm::Inputs::CollectionRadioButtonsInput
 end
 ```
 
+## Roadmap
+1. Default values for attributes. (I haven't needed yet...)
+2. Ransackers for embedded model attributes. (I haven't needed yet...)
+3. Refactor the EmbedsOne and EmbedsMany modules to use a Builder class instead of procedural metaprogramming. (Hello Code Climate...)
+4. Currently when you mass-assign values to an embedded model, you need to assign all the values. It basically replaces what is there with what you send in, removing what has :_destroy set. I would be nice if it could do a smarter find or create behavior.
+
+
 ## Contributing
 
 1. Fork it ( https://github.com/dfurber/ar_doc_store/fork )
