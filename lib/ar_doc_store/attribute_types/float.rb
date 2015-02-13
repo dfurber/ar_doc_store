@@ -9,6 +9,11 @@ module ArDocStore
       def predicate
         'float'
       end
+
+      def column_type
+        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal.new
+      end
+
     end
 
   end

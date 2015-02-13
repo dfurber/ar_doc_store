@@ -85,7 +85,11 @@ module ArDocStore
         }
         define_method "#{key}=".to_sym, -> (value) {
           # data_will_change! if @initalized
-          write_store_attribute(:data, key, value.public_send(typecast_method))
+          if value == '' || value.nil?
+            write_store_attribute :data, key, nil
+          else
+            write_store_attribute(:data, key, value.public_send(typecast_method))
+          end
         }
       end
 
@@ -102,7 +106,11 @@ module ArDocStore
         define_method "#{key}=".to_sym, -> (value) {
           ivar = "@#{key}"
           class_name = class_name.constantize if class_name.respond_to?(:constantize)
-          value = class_name.new(value) unless value.is_a?(class_name)
+          if value == ''
+            value = nil
+          else
+            value = class_name.new(value) unless value.is_a?(class_name)
+          end
           instance_variable_set ivar, value
           write_store_attribute :data, key, value
         }

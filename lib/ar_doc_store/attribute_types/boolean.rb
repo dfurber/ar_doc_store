@@ -6,7 +6,6 @@ module ArDocStore
         key = attribute.to_sym
         model.class_eval do
           store_accessor :data, key
-          # define_method key, -> { item = super(); item && item == true }
           define_method "#{key}?".to_sym, -> { !!key }
           define_method "#{key}=".to_sym, -> (value) {
             res = nil
@@ -17,6 +16,11 @@ module ArDocStore
           add_ransacker(key, 'bool')
         end
       end
+
+      def column_type
+        ActiveRecord::Type::Boolean.new
+      end
+
     end
 
   end

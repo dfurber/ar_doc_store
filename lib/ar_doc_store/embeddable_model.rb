@@ -4,6 +4,25 @@ module ArDocStore
 
     def self.included(mod)
 
+      mod.class_eval do
+        attr_accessor :_destroy
+        attr_accessor :attributes
+
+        @virtual_attributes = HashWithIndifferentAccess.new
+
+        def self.virtual_attributes; @virtual_attributes; end
+        def self.virtual_attributes=(value); @virtual_attributes=value; end
+        def virtual_attributes; self.class.virtual_attributes; end
+
+        @columns_hash = HashWithIndifferentAccess.new
+        def self.columns_hash; @columns_hash; end
+        def self.columns_hash=(value); @columns_hash=value; end
+        def columns_hash; self.class.columns_hash; end
+
+        delegate :as_json, to: :attributes
+
+      end
+
       mod.send :include, ArDocStore::Storage
       mod.send :include, ArDocStore::Embedding
       mod.send :include, InstanceMethods
@@ -15,19 +34,6 @@ module ArDocStore
       mod.send :include, ActiveModel::Dirty
       mod.send :include, ActiveModel::Serialization
 
-      mod.class_eval do
-        attr_accessor :_destroy
-        attr_accessor :attributes
-
-        @virtual_attributes = HashWithIndifferentAccess.new
-
-        def self.virtual_attributes; @virtual_attributes; end
-        def self.virtual_attributes=(value); @virtual_attributes=value; end
-        def virtual_attributes; self.class.virtual_attributes || HashWithIndifferentAccess.new; end
-
-        delegate :as_json, to: :attributes
-
-      end
     end
     
     module InstanceMethods
@@ -76,7 +82,7 @@ module ArDocStore
         define_method key, -> { read_store_attribute(:data, key) }
         define_method "#{key}=".to_sym, -> (value) { write_store_attribute :data, key, value }
       end
-            
+      
     end
 
   end

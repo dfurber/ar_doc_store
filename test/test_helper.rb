@@ -60,6 +60,10 @@ class ARDuck
     true
   end
   
+  def self.columns_hash
+    @@columns_hash ||= HashWithIndifferentAccess.new
+  end
+  
 end
 
 class Dimensions
