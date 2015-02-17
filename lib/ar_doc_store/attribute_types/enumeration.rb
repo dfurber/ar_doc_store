@@ -32,6 +32,10 @@ module ArDocStore
         end
       end
 
+      def type
+        :string
+      end
+
     end
   end
 end

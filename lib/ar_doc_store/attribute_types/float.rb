@@ -10,8 +10,8 @@ module ArDocStore
         'float'
       end
 
-      def column_type
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal.new
+      def type
+        :float
       end
 
     end

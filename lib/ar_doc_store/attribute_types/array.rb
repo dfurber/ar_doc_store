@@ -15,6 +15,10 @@ module ArDocStore
         end
       end
 
+      def type
+        :array
+      end
+
     end
 
   end

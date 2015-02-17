@@ -17,8 +17,8 @@ module ArDocStore
         end
       end
 
-      def column_type
-        ActiveRecord::Type::Boolean.new
+      def type
+        :boolean
       end
 
     end
