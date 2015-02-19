@@ -18,6 +18,7 @@ module ArDocStore
 
       # The purpose of this was to simply make it help SimpleForm guess the correct input type. But it unleashes the furies of ActiveRecord so goodbye.
       def add_to_columns_hash
+        model.columns_hash ||= HashWithIndifferentAccess.new
         model.columns_hash[attribute.to_s] = self
       end
 

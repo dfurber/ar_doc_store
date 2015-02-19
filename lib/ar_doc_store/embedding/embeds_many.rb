@@ -45,7 +45,7 @@ module ArDocStore
               items
             }
             define_method "#{assn_name}=".to_sym, -> (values) {
-              if values
+              if values && values.respond_to?(:map)
                 items = values.map { |item|
                   my_class_name = class_name.constantize
                   item.is_a?(my_class_name) ? item : my_class_name.new(item)
