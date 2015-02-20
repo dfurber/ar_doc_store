@@ -11,7 +11,7 @@ module ArDocStore
       end
 
       def type
-        :integer
+        :number
       end
 
     end

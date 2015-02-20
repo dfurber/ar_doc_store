@@ -11,7 +11,7 @@ module ArDocStore
       end
 
       def type
-        :float
+        :number
       end
 
     end
