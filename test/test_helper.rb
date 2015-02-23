@@ -63,7 +63,25 @@ class ARDuck
   def self.columns_hash
     @@columns_hash ||= HashWithIndifferentAccess.new
   end
-  
+
+end
+
+class EmptyModel
+  include ArDocStore::EmbeddableModel
+end
+
+class ThingWithEmptyModel < ARDuck
+  include ArDocStore::Model
+  embeds_one :empty_model
+end
+
+class EmbeddableA < ARDuck
+  include ArDocStore::EmbeddableModel
+  attribute :name
+end
+
+class EmbeddableB < EmbeddableA
+  attribute :gender
 end
 
 class Dimensions

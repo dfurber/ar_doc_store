@@ -8,16 +8,8 @@ module ArDocStore
         attr_accessor :_destroy
         attr_accessor :attributes
 
-        @virtual_attributes = HashWithIndifferentAccess.new
-
-        def self.virtual_attributes; @virtual_attributes; end
-        def self.virtual_attributes=(value); @virtual_attributes=value; end
-        def virtual_attributes; self.class.virtual_attributes; end
-
-        @columns_hash = HashWithIndifferentAccess.new
-        def self.columns_hash; @columns_hash; end
-        def self.columns_hash=(value); @columns_hash=value; end
-        def columns_hash; self.class.columns_hash; end
+        class_attribute :virtual_attributes
+        self.virtual_attributes ||= HashWithIndifferentAccess.new
 
         delegate :as_json, to: :attributes
 
