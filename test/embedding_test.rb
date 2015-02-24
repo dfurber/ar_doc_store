@@ -23,6 +23,13 @@ class EmbeddingTest < MiniTest::Test
     assert_nil restroom.door.clear_distance
   end
   
+  def test_attributes_equals_sets_partial_attributes
+    restroom = Restroom.new door_attributes: { clear_distance: 5, opening_force: 13, clear_space: 43 }
+    restroom.door_attributes = { clear_distance: 7 }
+    assert_equal 7, restroom.door.clear_distance
+    assert_equal 13, restroom.door.opening_force
+  end
+  
   def test_attribute_validity_of_embedded_model_from_model
     b = Building.new
     r = Restroom.new
