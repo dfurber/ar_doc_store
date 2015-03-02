@@ -13,6 +13,7 @@ require "ar_doc_store/attribute_types/enumeration"
 require "ar_doc_store/attribute_types/float"
 require "ar_doc_store/attribute_types/integer"
 require "ar_doc_store/attribute_types/string"
+require "ar_doc_store/attribute_types/uuid"
 
 module ArDocStore
   @mappings = Hash.new

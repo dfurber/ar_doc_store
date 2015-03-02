@@ -10,6 +10,8 @@ module ArDocStore
 
         class_attribute :virtual_attributes
         self.virtual_attributes ||= HashWithIndifferentAccess.new
+        
+        class_attribute :primary_key
 
         delegate :as_json, to: :attributes
 
