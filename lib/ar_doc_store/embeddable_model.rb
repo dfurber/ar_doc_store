@@ -7,15 +7,12 @@ module ArDocStore
       mod.class_eval do
         attr_accessor :_destroy
         attr_accessor :attributes
-<<<<<<< HEAD
 
         class_attribute :virtual_attributes
         self.virtual_attributes ||= HashWithIndifferentAccess.new
         
         class_attribute :primary_key
 
-=======
->>>>>>> master
         delegate :as_json, to: :attributes
       end
 
