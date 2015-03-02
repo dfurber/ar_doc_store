@@ -109,11 +109,12 @@ module ArDocStore
         }
         define_method "#{key}=".to_sym, -> (value) {
           ivar = "@#{key}"
+          existing = public_send(key)
           class_name = class_name.constantize if class_name.respond_to?(:constantize)
-          if value == ''
+          if value == '' || !value
             value = nil
-          else
-            value = class_name.new(value) unless value.is_a?(class_name)
+          elsif !value.is_a?(class_name)
+            value = existing.apply_attributes(value)
           end
           instance_variable_set ivar, value
           write_store_attribute :data, key, value

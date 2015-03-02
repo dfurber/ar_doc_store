@@ -31,9 +31,13 @@ module ArDocStore
     
     module InstanceMethods
       
-      def initialize(attrs={})
-        attrs ||= {}
+      def initialize(attrs=HashWithIndifferentAccess.new)
         @attributes = HashWithIndifferentAccess.new
+        apply_attributes attrs
+      end
+      
+      def apply_attributes(attrs=HashWithIndifferentAccess.new)
+        return self unless attrs
         attrs.each { |key, value|
           key = "#{key}=".to_sym
           self.public_send(key, value) if methods.include?(key)
@@ -41,6 +45,7 @@ module ArDocStore
         virtual_attributes.keys.each do |attr|
           @attributes[attr] ||= nil
         end
+        self
       end
 
       def persisted?
