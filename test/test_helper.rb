@@ -101,6 +101,7 @@ end
 
 class Door
   include ArDocStore::EmbeddableModel
+  self.primary_key = :id
   attribute :id, :uuid
   enumerates :door_type, multiple: true, values: %w{single double french sliding push pull}
   attribute :open_handle,  as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
