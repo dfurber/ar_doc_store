@@ -1,8 +1,5 @@
 require "ar_doc_store/version"
 require "ar_doc_store/storage"
-require "ar_doc_store/embedding/embeds_one"
-require "ar_doc_store/embedding/embeds_many"
-require "ar_doc_store/embedding/core"
 require "ar_doc_store/embedding"
 require "ar_doc_store/model"
 require "ar_doc_store/embeddable_model"
@@ -13,6 +10,8 @@ require "ar_doc_store/attribute_types/enumeration"
 require "ar_doc_store/attribute_types/float"
 require "ar_doc_store/attribute_types/integer"
 require "ar_doc_store/attribute_types/string"
+require "ar_doc_store/attribute_types/embeds_one"
+require "ar_doc_store/attribute_types/embeds_many"
 
 module ArDocStore
   @mappings = Hash.new
