@@ -7,14 +7,16 @@ module ArDocStore
       mod.class_eval do
         attr_accessor :_destroy
         attr_accessor :attributes
+<<<<<<< HEAD
 
         class_attribute :virtual_attributes
         self.virtual_attributes ||= HashWithIndifferentAccess.new
         
         class_attribute :primary_key
 
+=======
+>>>>>>> master
         delegate :as_json, to: :attributes
-
       end
 
       mod.send :include, ArDocStore::Storage
@@ -71,7 +73,7 @@ module ArDocStore
       
       def store_accessor(store, key)
         self.virtual_attributes ||= HashWithIndifferentAccess.new
-        virtual_attributes[key] = true
+        virtual_attributes[key] ||= true
         key = key.to_sym
         define_method key, -> { read_store_attribute(:data, key) }
         define_method "#{key}=".to_sym, -> (value) { write_store_attribute :data, key, value }

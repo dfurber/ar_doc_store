@@ -2,6 +2,10 @@ module ArDocStore
   module Storage
     
     def self.included(mod)
+      
+      mod.class_attribute :virtual_attributes
+      mod.virtual_attributes ||= HashWithIndifferentAccess.new
+      
       mod.send :include, InstanceMethods
       mod.send :extend, ClassMethods
     end

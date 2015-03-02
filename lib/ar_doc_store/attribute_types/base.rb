@@ -9,6 +9,7 @@ module ArDocStore
 
       def initialize(model, attribute, options)
         @model, @attribute, @options = model, attribute, options
+        @model.virtual_attributes[attribute] = self
       end
 
       def build
