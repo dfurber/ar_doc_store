@@ -48,6 +48,20 @@ class EmbeddingTest < MiniTest::Test
     assert_nil building.restrooms.detect {|restroom| restroom.id == restrooms_attributes[:a2][:id] }
   end
   
+  def test_attributes_method_embeds_many_does_not_clobber_existing_embeds_that_are_not_in_array
+    building = Building.new
+    building.restrooms << Restroom.new(door_attributes: { clear_distance: 5, opening_force: 13, clear_space: 43 })
+    building.restrooms << Restroom.new(door_attributes: { clear_distance: 6, opening_force: 14, clear_space: 44 })
+    building.restrooms << Restroom.new(door_attributes: { clear_distance: 7, opening_force: 15, clear_space: 45 })
+    restrooms_attributes = {
+      a1: { id: building.restrooms[0].id, door_attributes: { clear_distance: 10 } },
+    }
+    building.restrooms_attributes = restrooms_attributes
+    assert_equal 3, building.restrooms.size
+    assert_equal 10, building.restrooms.first.door.clear_distance
+    assert_equal 15, building.restrooms.last.door.opening_force
+  end
+  
   def test_attribute_validity_of_embedded_model_from_model
     b = Building.new
     r = Restroom.new
