@@ -4,18 +4,6 @@ module ArDocStore
 
     def self.included(mod)
 
-      mod.class_eval do
-        attr_accessor :_destroy
-        attr_accessor :attributes
-
-        class_attribute :virtual_attributes
-        self.virtual_attributes ||= HashWithIndifferentAccess.new
-        
-        class_attribute :primary_key
-
-        delegate :as_json, to: :attributes
-      end
-
       mod.send :include, ArDocStore::Storage
       mod.send :include, ArDocStore::Embedding
       mod.send :include, InstanceMethods
@@ -26,6 +14,18 @@ module ArDocStore
       mod.send :extend,  ActiveModel::Naming
       mod.send :include, ActiveModel::Dirty
       mod.send :include, ActiveModel::Serialization
+
+      mod.class_eval do
+        attr_accessor :_destroy
+        attr_accessor :attributes
+
+        class_attribute :virtual_attributes
+        self.virtual_attributes ||= HashWithIndifferentAccess.new
+        
+        delegate :as_json, to: :attributes
+        
+        attribute :id, :uuid
+      end
 
     end
     

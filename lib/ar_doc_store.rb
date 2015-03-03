@@ -26,4 +26,20 @@ module ArDocStore
   def self.mappings
     @mappings
   end
+  
+  def self.convert_boolean(bool)
+    if bool.is_a?(String)
+      return true if bool == true || bool =~ (/^(true|t|yes|y|1)$/i)
+      return false if bool == false || bool.blank? || bool =~ (/^(false|f|no|n|0)$/i)
+    elsif bool.is_a?(Integer)
+      return bool > 0
+    elsif bool.is_a?(TrueClass)
+      return true
+    elsif bool.is_a?(FalseClass)
+      return false
+    else
+      return nil
+    end
+  end
 end
+

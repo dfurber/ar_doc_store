@@ -61,10 +61,28 @@ module ArDocStore
       def create_embeds_many_attributes_method(assn_name)
         model.class_eval do
           define_method "#{assn_name}_attributes=", -> (values) {
-            data_will_change!
-            values = values.andand.values || []
-            values = values.reject { |item| item['_destroy'] == '1' }
-            public_send "#{assn_name}=", values
+            values = values && values.values || []
+            models = public_send assn_name
+            new_models = []
+            values.each { |value| 
+              value.symbolize_keys!
+              if value.key?(:id)
+                next if value.key?(:_destroy) && ArDocStore.convert_boolean(value[:_destroy])
+                existing = models.detect { |item| item.id == value[:id] }
+                if existing
+                  new_models << existing.apply_attributes(value)
+                else
+                  # If there was an ID but we can't find it now, do we add it back or ignore it?
+                  # Right now, add it back.
+                  new_models << public_send("build_#{assn_name}", value)
+                end
+              else
+                new_models << public_send("build_#{assn_name}", value)
+              end
+            }
+            public_send "#{assn_name}=", new_models
+            # values = values.reject { |item| item[:_destroy] && item[:_destroy].to_bool }
+            # public_send "#{assn_name}=", values
           }
         end
       end
