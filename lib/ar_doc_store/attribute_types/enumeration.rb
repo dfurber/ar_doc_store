@@ -19,7 +19,6 @@ module ArDocStore
               end
               validate "validate_#{key}".to_sym
             end
-            # TODO should we do anything for strict option?
           else
             attribute key, as: :string
             if strict
