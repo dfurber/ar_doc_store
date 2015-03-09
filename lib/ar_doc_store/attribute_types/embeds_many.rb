@@ -1,7 +1,13 @@
 module ArDocStore
+  
+  class EmbeddedCollection < Array
+    attr_accessor :parent
+  end
+  
   module AttributeTypes
 
     class EmbedsManyAttribute < Base
+
       def build
         assn_name = attribute.to_sym
         class_name = options[:class_name] || attribute.to_s.classify
@@ -30,23 +36,29 @@ module ArDocStore
           my_class_name = class_name.constantize
           items = read_store_attribute(:data, assn_name)
           if items.present? && items.first.respond_to?(:keys)
-            items = items.map { |item| my_class_name.new(item) }
+            items = ArDocStore::EmbeddedCollection.new items.map { |item| my_class_name.new(item) }
           end
-          items ||= []
+          items ||= ArDocStore::EmbeddedCollection.new
           instance_variable_set ivar, (items)
+          items.parent = self
+          items.map {|item| item.parent = self }
           items
         }
       end
       def create_writer_for(assn_name, class_name)
         add_method "#{assn_name}=".to_sym, -> (values) {
           if values && values.respond_to?(:map)
-            items = values.map { |item|
+            items = ArDocStore::EmbeddedCollection.new values.map { |item|
               my_class_name = class_name.constantize
-              item.is_a?(my_class_name) ? item : my_class_name.new(item)
+              item = item.is_a?(my_class_name) ? item : my_class_name.new(item)
+              item.id
+              item.parent = self
+              item
             }
           else
             items = []
           end
+          items.parent = self
           instance_variable_set "@#{assn_name}", write_store_attribute(:data, assn_name, items)
         }
       end
@@ -55,6 +67,8 @@ module ArDocStore
         add_method "build_#{assn_name.to_s.singularize}", -> (attributes=nil) {
           assns = self.public_send assn_name
           item = class_name.constantize.new attributes
+          item.id
+          item.parent = self
           assns << item
           public_send "#{assn_name}=", assns
           item
@@ -69,9 +83,18 @@ module ArDocStore
       
       def create_embeds_many_attributes_method(assn_name)
         add_method "#{assn_name}_attributes=", -> (values) {
-          values = values && values.values || []
+          return if values.blank?
+          # if it's a single item then wrap it in an array but how to tell?
+          
+          if values.respond_to?(:each)
+            if values.respond_to?(:values)
+              values = values.values
+            end
+          else
+            values = [values]
+          end
           models = public_send assn_name
-          public_send "#{assn_name}=", AssignEmbedsManyAttributes.new(models, values).models
+          public_send "#{assn_name}=", AssignEmbedsManyAttributes.new(self, assn_name, models, values).models
         }
       end
 
@@ -87,11 +110,11 @@ module ArDocStore
     end
 
     class AssignEmbedsManyAttributes
-      attr_reader :models
-      def initialize(models, values)
-        @models, @values = models, values
+      attr_reader :models, :assn_name, :parent
+      def initialize(parent, assn_name, models, values)
+        @parent, @assn_name, @models, @values = parent, assn_name, models, values
         values.each { |value| 
-          value.symbolize_keys! 
+          value = value.symbolize_keys
           process_existing_model(value) or add(value)
         }
       end
@@ -99,12 +122,12 @@ module ArDocStore
       private
       
       attr_writer :models, :values
-      attr_reader :values
+      attr_reader :values, :assn_name
       
       def process_existing_model(value)
         return false unless value.key?(:id)
         model = find_model_by_value(value)
-        model and destroy_or_update(model, value) or add(value)
+        model && destroy_or_update(model, value) #or add(value)
       end
       
       def destroy_or_update(model, value)
@@ -112,7 +135,7 @@ module ArDocStore
       end
       
       def add(value)
-        models << public_send("build_#{assn_name}", value)
+        parent.public_send("build_#{assn_name.to_s.singularize}", value)
       end
 
       def destroy(model, value)

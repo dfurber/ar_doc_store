@@ -4,20 +4,20 @@ module ArDocStore
 
     def self.included(mod)
 
-      mod.send :include, ArDocStore::Storage
-      mod.send :include, ArDocStore::Embedding
-      mod.send :include, InstanceMethods
-      mod.send :extend, ClassMethods
       mod.send :include, ActiveModel::AttributeMethods
       mod.send :include, ActiveModel::Validations
       mod.send :include, ActiveModel::Conversion
       mod.send :extend,  ActiveModel::Naming
       mod.send :include, ActiveModel::Dirty
       mod.send :include, ActiveModel::Serialization
+      mod.send :include, ArDocStore::Storage
+      mod.send :include, ArDocStore::Embedding
+      mod.send :include, InstanceMethods
+      mod.send :extend, ClassMethods
 
       mod.class_eval do
         attr_accessor :_destroy
-        attr_accessor :attributes
+        attr_accessor :attributes, :parent
 
         class_attribute :virtual_attributes
         self.virtual_attributes ||= HashWithIndifferentAccess.new
@@ -33,19 +33,25 @@ module ArDocStore
       
       def initialize(attrs=HashWithIndifferentAccess.new)
         @attributes = HashWithIndifferentAccess.new
+        self.parent = attrs.delete(:parent)
         apply_attributes attrs
       end
       
       def apply_attributes(attrs=HashWithIndifferentAccess.new)
-        return self unless attrs
-        attrs.each { |key, value|
-          key = "#{key}=".to_sym
-          self.public_send(key, value) if methods.include?(key)
-        }
         virtual_attributes.keys.each do |attr|
           @attributes[attr] ||= nil
         end
+        if attrs
+          attrs.each { |key, value|
+            key = "#{key}=".to_sym
+            self.public_send(key, value) if methods.include?(key)
+          }
+        end
         self
+      end
+      
+      def save
+        parent && parent.save
       end
 
       def persisted?
@@ -67,6 +73,10 @@ module ArDocStore
 
       def data_will_change!
         true
+      end
+      
+      def to_param
+        id
       end
       
     end
