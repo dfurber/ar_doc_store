@@ -69,23 +69,28 @@ module ArDocStore
         end
       end
 
-      def store_attributes(typecast_method, predicate=nil, attributes=[], default=nil)
+      def store_attributes(typecast_method, predicate=nil, attributes=[], default_value=nil)
         attributes = [attributes] unless attributes.respond_to?(:each)
         attributes.each do |key|
           store_accessor :data, key
           add_ransacker(key, predicate)
           if typecast_method.is_a?(Symbol)
-            store_attribute_from_symbol typecast_method, key
+            store_attribute_from_symbol typecast_method, key, default_value
           else
             store_attribute_from_class typecast_method, key
           end
         end
       end
 
-      def store_attribute_from_symbol(typecast_method, key)
+      def store_attribute_from_symbol(typecast_method, key, default_value)
         define_method key.to_sym, -> { 
           value = read_store_attribute(:data, key)
-          value.public_send(typecast_method) if value
+          if value
+            value.public_send(typecast_method)
+          elsif default_value
+            write_store_attribute(:data, key, default_value)
+            default_value
+          end
         }
         define_method "#{key}=".to_sym, -> (value) {
           # data_will_change! if @initalized
