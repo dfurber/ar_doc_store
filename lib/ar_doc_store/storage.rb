@@ -69,7 +69,7 @@ module ArDocStore
         end
       end
 
-      def store_attributes(typecast_method, predicate=nil, attributes=[])
+      def store_attributes(typecast_method, predicate=nil, attributes=[], default=nil)
         attributes = [attributes] unless attributes.respond_to?(:each)
         attributes.each do |key|
           store_accessor :data, key

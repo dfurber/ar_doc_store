@@ -10,10 +10,11 @@ module ArDocStore
       def initialize(model, attribute, options)
         @model, @attribute, @options = model, attribute, options
         @model.virtual_attributes[attribute] = self
+        @default = options.delete(:default)
       end
 
       def build
-        model.store_attributes conversion, predicate, attribute
+        model.store_attributes conversion, predicate, attribute, default
       end
 
     end
