@@ -8,10 +8,11 @@ module ArDocStore
         dictionary = options[:values]
         multiple = options[:multiple]
         strict = options[:strict]
+        default_value = default
         model.class_eval do
           
           if multiple
-            attribute key, as: :array
+            attribute key, as: :array, default: default_value
             if strict
               define_method "validate_#{key}" do
                 value = public_send(key)
@@ -20,7 +21,7 @@ module ArDocStore
               validate "validate_#{key}".to_sym
             end
           else
-            attribute key, as: :string
+            attribute key, as: :string, default: default_value
             if strict
               validates_inclusion_of key, in: dictionary, allow_blank: true
             end

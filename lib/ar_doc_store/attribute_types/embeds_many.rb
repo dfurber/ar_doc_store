@@ -16,7 +16,7 @@ module ArDocStore
         create_writer_for assn_name, class_name
         create_build_method_for assn_name, class_name
         create_ensure_method_for assn_name
-        create_embeds_many_attributes_method(assn_name)
+        create_embeds_many_attributes_method(class_name, assn_name)
         create_embeds_many_validation(assn_name)
       end
       
@@ -81,7 +81,7 @@ module ArDocStore
         add_method "ensure_#{assn_name}", method
       end
       
-      def create_embeds_many_attributes_method(assn_name)
+      def create_embeds_many_attributes_method(class_name, assn_name)
         add_method "#{assn_name}_attributes=", -> (values) {
           return if values.blank?
           # if it's a single item then wrap it in an array but how to tell?
@@ -94,7 +94,7 @@ module ArDocStore
             values = [values]
           end
           models = public_send assn_name
-          public_send "#{assn_name}=", AssignEmbedsManyAttributes.new(self, assn_name, models, values).models
+          public_send "#{assn_name}=", AssignEmbedsManyAttributes.new(self, class_name, assn_name, models, values).models
         }
       end
 
@@ -110,12 +110,19 @@ module ArDocStore
     end
 
     class AssignEmbedsManyAttributes
-      attr_reader :models, :assn_name, :parent
-      def initialize(parent, assn_name, models, values)
-        @parent, @assn_name, @models, @values = parent, assn_name, models, values
+      attr_reader :models, :assn_name, :parent, :class_name
+      def initialize(parent, class_name, assn_name, models, values)
+        @parent, @class_name, @assn_name, @models, @values = parent, class_name, assn_name, models, values
         values.each { |value| 
           value = value.symbolize_keys
-          process_existing_model(value) or add(value)
+          Rails.logger.info value.inspect
+          if value.key?(:id)
+            Rails.logger.info 'process_existing_model'
+            process_existing_model(value)
+          else
+            Rails.logger.info 'adding new model'
+            add(value)
+          end
         }
       end
       
@@ -127,7 +134,7 @@ module ArDocStore
       def process_existing_model(value)
         return false unless value.key?(:id)
         model = find_model_by_value(value)
-        model && destroy_or_update(model, value) #or add(value)
+        model && destroy_or_update(model, value) or add(value)
       end
       
       def destroy_or_update(model, value)
@@ -135,7 +142,7 @@ module ArDocStore
       end
       
       def add(value)
-        parent.public_send("build_#{assn_name.to_s.singularize}", value)
+        models << class_name.constantize.new(value)
       end
 
       def destroy(model, value)
