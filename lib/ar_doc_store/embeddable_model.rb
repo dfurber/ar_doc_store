@@ -33,10 +33,11 @@ module ArDocStore
       
       def initialize(attrs=HashWithIndifferentAccess.new)
         @attributes = HashWithIndifferentAccess.new
-        self.parent = attrs.delete(:parent)
+        self.parent = attrs.delete(:parent) if attrs
         apply_attributes attrs
+        @_initialized = true
       end
-      
+
       def apply_attributes(attrs=HashWithIndifferentAccess.new)
         virtual_attributes.keys.each do |attr|
           @attributes[attr] ||= nil
@@ -67,7 +68,11 @@ module ArDocStore
       end
 
       def write_store_attribute(store, key, value)
-        changed_attributes[key] = read_store_attribute(:data, key)
+        changed_attributes[key] = read_store_attribute(:data, key) if @_initialized
+        @attributes[key] = value
+      end
+
+      def write_default_store_attribute(key, value)
         @attributes[key] = value
       end
 

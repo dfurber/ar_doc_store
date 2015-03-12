@@ -115,12 +115,9 @@ module ArDocStore
         @parent, @class_name, @assn_name, @models, @values = parent, class_name, assn_name, models, values
         values.each { |value| 
           value = value.symbolize_keys
-          Rails.logger.info value.inspect
           if value.key?(:id)
-            Rails.logger.info 'process_existing_model'
             process_existing_model(value)
           else
-            Rails.logger.info 'adding new model'
             add(value)
           end
         }

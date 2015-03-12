@@ -24,11 +24,12 @@ class ARDuck
 
   def initialize(attrs=nil)
     @attributes = HashWithIndifferentAccess.new
-    return if attrs.nil?
-    attrs.each { |key, value|
-      key = "#{key}=".to_sym
-      self.public_send(key, value) if methods.include?(key)
-    }
+    unless attrs.nil?
+      attrs.each { |key, value|
+        @attributes[key] = value
+      }
+    end
+    @_initialized = true
   end
 
   def persisted?
@@ -52,16 +53,8 @@ class ARDuck
   end
 
   def write_store_attribute(store, key, value)
-    changed_attributes[key] = read_store_attribute(:data, key)
+    #changed_attributes[key] = read_store_attribute(:data, key) if @_initialized
     @attributes[key] = value
-  end
-
-  def data_will_change!
-    true
-  end
-  
-  def self.columns_hash
-    @@columns_hash ||= HashWithIndifferentAccess.new
   end
 
 end

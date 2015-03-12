@@ -27,7 +27,7 @@ module ArDocStore
           super
         end
       end
-      
+
       private
       
       def is_stored_attribute?(name)
@@ -44,6 +44,8 @@ module ArDocStore
         is_store_accessor_method?(name) ? name : name.match(/\'(\w+)\'/)[0].gsub("'", '')
       end
       
+      
+      
     end
     
     module ClassMethods
@@ -56,6 +58,7 @@ module ArDocStore
         raise "Invalid attribute type: #{name}" unless const_defined?(class_name)
         class_name = class_name.constantize
         class_name.build self, name, options
+        define_virtual_attribute_method name
       end
 
       def add_ransacker(key, predicate = nil)
@@ -88,7 +91,8 @@ module ArDocStore
           if value
             value.public_send(typecast_method)
           elsif default_value
-            write_store_attribute(:data, key, default_value)
+            write_default_store_attribute(key, default_value)
+            # write_store_attribute(:data, key, default_value)
             default_value
           end
         }
@@ -101,7 +105,7 @@ module ArDocStore
           end
         }
       end
-
+      
       def store_attribute_from_class(class_name, key)
         define_method key.to_sym, -> {
           ivar = "@#{key}"
@@ -125,6 +129,25 @@ module ArDocStore
           write_store_attribute :data, key, value
         }
       end
+      
+      # Pretty much the same as define_attribute_method but skipping the matches that create read and write methods
+      def define_virtual_attribute_method(attr_name)
+        attr_name = attr_name.to_s
+        attribute_method_matchers.each do |matcher|
+          method_name = matcher.method_name(attr_name)
+          next if instance_method_already_implemented?(method_name)
+          next if %w{attribute attribute= attribute_before_type_cast}.include? matcher.method_missing_target
+          generate_method = "define_method_#{matcher.method_missing_target}"
+          if respond_to?(generate_method, true)
+            send(generate_method, attr_name)
+          else
+            define_proxy_call true, generated_attribute_methods, method_name, matcher.method_missing_target, attr_name.to_s
+          end
+        end
+        attribute_method_matchers_cache.clear
+      end
+            
+      
 
       def string_attributes(*args)
         args.each do |arg|
