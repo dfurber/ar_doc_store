@@ -43,9 +43,20 @@ module ArDocStore
       def attribute_name_from_foreign_key(name)
         is_store_accessor_method?(name) ? name : name.match(/\'(\w+)\'/)[0].gsub("'", '')
       end
-      
-      
-      
+
+      def clean_attribute_names_for_arel(attribute_names)
+        attribute_names.reject{|attribute_name| is_stored_attribute?(attribute_name)}
+      end
+
+      # Overridden otherwise insert and update queries get fooled into thinking that stored attributes are real columns.
+      def arel_attributes_with_values_for_create(attribute_names) #:nodoc:
+        super clean_attribute_names_for_arel(attribute_names)
+      end
+
+      # Overridden otherwise insert and update queries get fooled into thinking that stored attributes are real columns.
+      def arel_attributes_with_values_for_update(attribute_names) #:nodoc:
+        super clean_attribute_names_for_arel(attribute_names)
+      end
     end
     
     module ClassMethods
@@ -61,6 +72,7 @@ module ArDocStore
         define_virtual_attribute_method name
       end
 
+      #:nodoc:
       def add_ransacker(key, predicate = nil)
         return unless respond_to?(:ransacker)
         ransacker key do
@@ -72,6 +84,7 @@ module ArDocStore
         end
       end
 
+      #:nodoc:
       def store_attributes(typecast_method, predicate=nil, attributes=[], default_value=nil)
         attributes = [attributes] unless attributes.respond_to?(:each)
         attributes.each do |key|
@@ -85,6 +98,7 @@ module ArDocStore
         end
       end
 
+      #:nodoc:
       def store_attribute_from_symbol(typecast_method, key, default_value)
         define_method key.to_sym, -> { 
           value = read_store_attribute(:data, key)
@@ -92,12 +106,10 @@ module ArDocStore
             value.public_send(typecast_method)
           elsif default_value
             write_default_store_attribute(key, default_value)
-            # write_store_attribute(:data, key, default_value)
             default_value
           end
         }
         define_method "#{key}=".to_sym, -> (value) {
-          # data_will_change! if @initalized
           if value == '' || value.nil?
             write_store_attribute :data, key, nil
           else
@@ -106,6 +118,9 @@ module ArDocStore
         }
       end
       
+      # TODO: add default value support. 
+      # Default ought to be a hash of attributes, 
+      # also accept a proc that receives the newly initialized object
       def store_attribute_from_class(class_name, key)
         define_method key.to_sym, -> {
           ivar = "@#{key}"
@@ -147,32 +162,36 @@ module ArDocStore
         attribute_method_matchers_cache.clear
       end
             
-      
-
+      # Allows you to define several string attributes at once. Deprecated.
       def string_attributes(*args)
         args.each do |arg|
           attribute arg, as: :string
         end
       end
 
+      # Allows you to define several float attributes at once. Deprecated.
       def float_attributes(*args)
         args.each do |arg|
           attribute arg, as: :float
         end
       end
 
+      # Allows you to define several integer attributes at once. Deprecated.
       def integer_attributes(*args)
         args.each do |arg|
           attribute arg, as: :integer
         end
       end
 
+      # Allows you to define several boolean attributes at once. Deprecated.
       def boolean_attributes(*args)
         args.each do |arg|
           attribute arg, as: :boolean
         end
       end
-      
+
+      # Shorthand for attribute :name, as: :enumeration, values: %w{a b c}
+      # Deprecated.
       def enumerates(field, *args)
         options = args.extract_options!
         options[:as] = :enumeration

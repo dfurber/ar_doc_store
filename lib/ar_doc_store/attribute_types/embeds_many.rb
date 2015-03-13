@@ -31,18 +31,19 @@ module ArDocStore
       def create_reader_for(assn_name, class_name)
         add_method assn_name.to_sym, -> {
           ivar = "@#{assn_name}"
-          existing = instance_variable_get(ivar)
-          return existing if existing
-          my_class_name = class_name.constantize
-          items = read_store_attribute(:data, assn_name)
-          if items.present? && items.first.respond_to?(:keys)
-            items = ArDocStore::EmbeddedCollection.new items.map { |item| my_class_name.new(item) }
+          instance_variable_get(ivar) || begin
+            my_class_name = class_name.constantize
+            items = read_store_attribute(:data, assn_name)
+            if items.is_a?(Array) || items.is_a?(ArDocStore::EmbeddedCollection)
+              items = ArDocStore::EmbeddedCollection.new items.map { |item| my_class_name.new(item) }
+            else
+              items ||= ArDocStore::EmbeddedCollection.new
+            end
+            instance_variable_set ivar, (items)
+            items.parent = self
+            items.map {|item| item.parent = self }
+            items
           end
-          items ||= ArDocStore::EmbeddedCollection.new
-          instance_variable_set ivar, (items)
-          items.parent = self
-          items.map {|item| item.parent = self }
-          items
         }
       end
       def create_writer_for(assn_name, class_name)

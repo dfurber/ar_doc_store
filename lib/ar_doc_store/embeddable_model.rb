@@ -51,6 +51,8 @@ module ArDocStore
         self
       end
       
+      # TODO: This doesn't work very well for embeds_many because the parent needs to have its setter triggered
+      # before the embedded model will actually get saved.
       def save
         parent && parent.save
       end
@@ -76,10 +78,6 @@ module ArDocStore
         @attributes[key] = value
       end
 
-      def data_will_change!
-        true
-      end
-      
       def to_param
         id
       end
@@ -88,6 +86,7 @@ module ArDocStore
     
     module ClassMethods
       
+      #:nodoc:
       def store_accessor(store, key)
         self.virtual_attributes ||= HashWithIndifferentAccess.new
         virtual_attributes[key] ||= true
