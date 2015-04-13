@@ -22,7 +22,9 @@ module ArDocStore
   @mappings[:float]       = 'ArDocStore::AttributeTypes::FloatAttribute'
   @mappings[:integer]     = 'ArDocStore::AttributeTypes::IntegerAttribute'
   @mappings[:string]      = 'ArDocStore::AttributeTypes::StringAttribute'
-  
+  @mappings[:json]        = 'ArDocStore::AttributeTypes::JsonAttribute'
+  @mappings[:uuid]        = 'ArDocStore::AttributeTypes::UuidAttribute'
+
   def self.mappings
     @mappings
   end
