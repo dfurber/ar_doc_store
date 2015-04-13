@@ -85,16 +85,13 @@ module ArDocStore
       end
 
       #:nodoc:
-      def store_attributes(typecast_method, predicate=nil, attributes=[], default_value=nil)
-        attributes = [attributes] unless attributes.respond_to?(:each)
-        attributes.each do |key|
-          store_accessor :data, key
-          add_ransacker(key, predicate)
-          if typecast_method.is_a?(Symbol)
-            store_attribute_from_symbol typecast_method, key, default_value
-          else
-            store_attribute_from_class typecast_method, key
-          end
+      def store_attribute(attribute, typecast_method, predicate=nil, default_value=nil)
+        store_accessor :data, attribute
+        add_ransacker(attribute, predicate)
+        if typecast_method.is_a?(Symbol)
+          store_attribute_from_symbol typecast_method, attribute, default_value
+        else
+          store_attribute_from_class typecast_method, attribute
         end
       end
 
@@ -161,7 +158,17 @@ module ArDocStore
         end
         attribute_method_matchers_cache.clear
       end
-            
+
+
+      # TODO: Remove the following deprecated methods once projects that use them have been refactored.
+      #:nodoc:
+      def store_attributes(typecast_method, predicate=nil, attributes=[], default_value=nil)
+        attributes = [attributes] unless attributes.respond_to?(:each)
+        attributes.each do |key|
+          store_attribute key, typecast_method, predicate, default_value
+        end
+      end
+
       # Allows you to define several string attributes at once. Deprecated.
       def string_attributes(*args)
         args.each do |arg|

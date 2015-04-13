@@ -14,7 +14,7 @@ module ArDocStore
       end
 
       def build
-        model.store_attributes conversion, predicate, attribute, default
+        model.store_attribute attribute, conversion, predicate, default
       end
 
     end
