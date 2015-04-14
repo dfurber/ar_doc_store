@@ -60,7 +60,10 @@ class Building < ActiveRecord::Base
   attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
   attribute :storeys, :integer
   attribute :finished, :boolean
-  attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
+  attribute :construction_type, :enumeration, 
+            values: %w{wood plaster mud brick}, 
+            multiple: true, 
+            strict: true
 end
 ```
 
@@ -98,9 +101,17 @@ Let's say that a building has a door. The building is not the only thing in our 
 class Door
   include ArDocStore::EmbeddableModel
 	
-  enumerates :door_type, multiple: true, values: %w{single double french sliding push pull}
-  attribute :open_handle,  as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
-  attribute :close_handle, as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
+  enumerates :door_type, 
+             multiple: true, 
+             values: %w{single double french sliding push pull}
+  attribute :open_handle,  
+            as: :enumeration, 
+            multiple: true, 
+            values: %w{push pull plate knob handle}
+  attribute :close_handle, 
+            as: :enumeration, 
+            multiple: true, 
+            values: %w{push pull plate knob handle}
   attribute :clear_distance, as: :integer
   attribute :opening_force, as: :integer
   attribute :clear_space, as: :integer
