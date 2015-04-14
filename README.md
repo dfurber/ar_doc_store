@@ -36,7 +36,7 @@ The first thing you need to do is create a migration that adds a column called "
 
 ```ruby
 change_table :buildings do |t|
-	t.jsonb :data
+  t.jsonb :data
 end
 ```
 
@@ -44,7 +44,7 @@ Then in the model file:
 
 ```ruby
 class Building < ActiveRecord::Base
-	include ArDocStore::Model
+  include ArDocStore::Model
 end
 ```
 
@@ -53,14 +53,14 @@ end
 Now there are several ways to play but all boil down to one method on the model:
 ```ruby
 class Building < ActiveRecord::Base
-	include ArDocStore::Model
+  include ArDocStore::Model
 	
-	attribute :name, :string
-	attribute :width, :float
-	attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
-	attribute :storeys, :integer
-	attribute :finished, :boolean
-	attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
+  attribute :name, :string
+  attribute :width, :float
+  attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
+  attribute :storeys, :integer
+  attribute :finished, :boolean
+  attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
 end
 ```
 
@@ -77,7 +77,11 @@ You noticed the enumeration type on the construction_type takes an array. That's
 
 ```ruby
 class Building ...
-	attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
+  attribute :construction_type, 
+            :enumeration, 
+            values: %w{wood plaster mud brick}, 
+            multiple: true, 
+            strict: true
 end
 building = Building.new
 building.construction_type = 'wood'
@@ -137,11 +141,11 @@ end
 
 # in the view, with a bonus plug for Slim templates:
 = simple_form_for @building do |form|
-	= form.input :name, as: :string
-	= form.input :height, as: :float
-	= form.object.ensure_door
-	= form.fields_for :door do |door_form|
-		= door_form.input :door_type, as: :check_boxes, collection: Door.door_type_choices
+  = form.input :name, as: :string
+  = form.input :height, as: :float
+  = form.object.ensure_door
+  = form.fields_for :door do |door_form|
+    = door_form.input :door_type, as: :check_boxes, collection: Door.door_type_choices
 ```
 
 What's to see here? Notice that I was able to "ensure_door", which means that if there already is a door, it keeps that one, otherwise it builds a new door object. Also on the door_type input, notice the collection comes from a door_type_choices that came from the enumeration attribute. Also notice that the embedded model conforms to the API for accepts_nested_attributes, for both assignment and validation, only you don't have to specify it because the _attributes= method comes for free.
@@ -150,16 +154,16 @@ You can also embeds_many. It works the same way:
 
 ```ruby
 class Room
-	include ArDocStore::EmbeddableModel
-	attribute :length, as: :float
-	attribute :width, as: :float
-	attribute :height, as: :float
-	enumerates :light_switch_type, %w{flip knob switchplate clapper}
+  include ArDocStore::EmbeddableModel
+  attribute :length, as: :float
+  attribute :width, as: :float
+  attribute :height, as: :float
+  enumerates :light_switch_type, %w{flip knob switchplate clapper}
 end
 
 class Building ...
-	embeds_many :rooms
-	embeds_one :foyer, class_name: 'Room'
+  embeds_many :rooms
+  embeds_one :foyer, class_name: 'Room'
 end
 
 building = Building.new
