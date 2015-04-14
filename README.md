@@ -6,7 +6,7 @@ There is also support for embedding models within models. These embedded models 
 
 The use case is primarily when you have a rapidly evolving schema with scores of attributes, where you would like to use composition but don't want to have a bajillion tables for data that fits squarely under the umbrella of its parent entity. For example, a building has entrances and restrooms, and the entrance and restroom each have a door and a route to the door. You could have active record models for the doors, routes, restrooms, and entrances, but you know that you only ever need to access the bathroom door from within the context of the building's bathroom. You don't need to access all the doors as their own entities because their existence is entirely contingent upon the entity within which they are contained. ArDocStore makes this easy.
 
-Learn more about the JSON column in Postgres:
+Learn more about the JSON column in Postgres and using it as a document store:
 * The Rails Guide on Postgres: http://edgeguides.rubyonrails.org/active_record_postgresql.html
 * Document Store Gymnastics: http://rob.conery.io/2015/03/01/document-storage-gymnastics-in-postgres/ 
 * PG as NoSQL: http://thebuild.com%5Cpresentations%5Cpg-as-nosql-pgday-fosdem-2013.pdf
