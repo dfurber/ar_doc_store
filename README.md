@@ -1,6 +1,6 @@
 # ArDocStore
 
-ArDocStore is a gem that makes it implement a document store in ActiveRecord models that have access to the PostgreSQL JSON data type. You add a json column to your table called "data", include the ArDocStore::Model module, and then add schema-less attributes that get stored in the data column. With Ransack, these attributes are searchable as if they were real columns. 
+ArDocStore (pronounced R-Dock-Store) is a gem that makes it implement a document store in ActiveRecord models that have access to the PostgreSQL JSON data type. You add a json column to your table called "data", include the ArDocStore::Model module, and then add schema-less attributes that get stored in the data column. With Ransack, these attributes are searchable as if they were real columns. 
 
 There is also support for embedding models within models. These embedded models can be accessed from Rails form builders using fields_for.
 
