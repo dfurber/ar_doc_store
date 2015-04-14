@@ -250,10 +250,9 @@ end
 ```
 
 ## Roadmap
-1. Default values for attributes. (I haven't needed yet...)
-2. Ransackers for embedded model attributes. (I haven't needed yet, but may this summer when the inspiring project goes to phase 2...)
-3. It would be nice if you could use the AR fluent query API on stored attributes, where is knows to replace, say, "name" with "data->>name" but I don't see how to do that, and Ransack provides a nice enough wrapper around ARel to get the job done another way.
-4. Migration support to rename attributes, remove attributes. (I haven't needed yet...)
+1. Ransackers for embedded model attributes. Deliberately left out because when you have nested JSON, Postgres searches on any keys within the JSON become 10x slower.
+2. It would be nice if you could use the AR fluent query API on stored attributes, where is knows to replace, say, "name" with "data->>name" but I don't see how to do that, and Ransack provides a nice enough wrapper around ARel to get the job done another way.
+3. Migration support to rename attributes, remove attributes. (Right now just query the documents you need to change, iterate and update the JSON directly.)
 
 ## Contributing
 
