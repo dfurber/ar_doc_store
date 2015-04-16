@@ -1,10 +1,18 @@
 # ArDocStore
 
-ArDocStore is a gem that makes it easy to handle document-store like behavior in ActiveRecord models that have access to the PostgreSQL JSON data type. You add a json column to your table called "data", include the ArDocStore::Model module, and then add schema-less attributes that get stored in the data column. With Ransack, these attributes are searchable as if they were real columns. 
+ArDocStore (pronounced R-Dock-Store) is a gem helps you implement a document store in ActiveRecord models that have access to the PostgreSQL JSON data type. You add a json column to your table called "data", include the ArDocStore::Model module, and then add schema-less attributes that get stored in the data column. With Ransack, these attributes are searchable as if they were real columns. 
 
 There is also support for embedding models within models. These embedded models can be accessed from Rails form builders using fields_for.
 
 The use case is primarily when you have a rapidly evolving schema with scores of attributes, where you would like to use composition but don't want to have a bajillion tables for data that fits squarely under the umbrella of its parent entity. For example, a building has entrances and restrooms, and the entrance and restroom each have a door and a route to the door. You could have active record models for the doors, routes, restrooms, and entrances, but you know that you only ever need to access the bathroom door from within the context of the building's bathroom. You don't need to access all the doors as their own entities because their existence is entirely contingent upon the entity within which they are contained. ArDocStore makes this easy.
+
+Learn more about the JSON column in Postgres and using it as a document store:
+* The Rails Guide on Postgres: http://edgeguides.rubyonrails.org/active_record_postgresql.html
+* Document Store Gymnastics: http://rob.conery.io/2015/03/01/document-storage-gymnastics-in-postgres/ 
+* PG as NoSQL: http://thebuild.com%5Cpresentations%5Cpg-as-nosql-pgday-fosdem-2013.pdf
+* Why JSON in PostgreSQL is Awesome: https://functionwhatwhat.com/json-in-postgresql/
+* Indexing JSONB: http://michael.otacoo.com/postgresql-2/postgres-9-4-feature-highlight-indexing-jsonb/
+
 
 ## Installation
 
@@ -24,11 +32,11 @@ Or install it yourself as:
 
 ## Usage
 
-The first thing you need to do is create a migration that adds a column called "data" of type ":json" to the table you want to turn into a document:
+The first thing you need to do is create a migration that adds a column called "data" of type ":json" or ":jsonb" to the table you want to turn into a document:
 
 ```ruby
 change_table :buildings do |t|
-	t.json :data
+  t.jsonb :data
 end
 ```
 
@@ -36,7 +44,7 @@ Then in the model file:
 
 ```ruby
 class Building < ActiveRecord::Base
-	include ArDocStore::Model
+  include ArDocStore::Model
 end
 ```
 
@@ -45,14 +53,17 @@ end
 Now there are several ways to play but all boil down to one method on the model:
 ```ruby
 class Building < ActiveRecord::Base
-	include ArDocStore::Model
+  include ArDocStore::Model
 	
-	attribute :name, :string
-	attribute :width, :float
-	attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
-	attribute :storeys, :integer
-	attribute :finished, :boolean
-	attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
+  attribute :name, :string
+  attribute :width, :float
+  attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
+  attribute :storeys, :integer
+  attribute :finished, :boolean
+  attribute :construction_type, :enumeration, 
+            values: %w{wood plaster mud brick}, 
+            multiple: true, 
+            strict: true
 end
 ```
 
@@ -69,7 +80,11 @@ You noticed the enumeration type on the construction_type takes an array. That's
 
 ```ruby
 class Building ...
-	attribute :construction_type, :enumeration, values: %w{wood plaster mud brick}, multiple: true, strict: true
+  attribute :construction_type, 
+            :enumeration, 
+            values: %w{wood plaster mud brick}, 
+            multiple: true, 
+            strict: true
 end
 building = Building.new
 building.construction_type = 'wood'
@@ -86,9 +101,17 @@ Let's say that a building has a door. The building is not the only thing in our 
 class Door
   include ArDocStore::EmbeddableModel
 	
-  enumerates :door_type, multiple: true, values: %w{single double french sliding push pull}
-  attribute :open_handle,  as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
-  attribute :close_handle, as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
+  enumerates :door_type, 
+             multiple: true, 
+             values: %w{single double french sliding push pull}
+  attribute :open_handle,  
+            as: :enumeration, 
+            multiple: true, 
+            values: %w{push pull plate knob handle}
+  attribute :close_handle, 
+            as: :enumeration, 
+            multiple: true, 
+            values: %w{push pull plate knob handle}
   attribute :clear_distance, as: :integer
   attribute :opening_force, as: :integer
   attribute :clear_space, as: :integer
@@ -129,11 +152,11 @@ end
 
 # in the view, with a bonus plug for Slim templates:
 = simple_form_for @building do |form|
-	= form.input :name, as: :string
-	= form.input :height, as: :float
-	= form.object.ensure_door
-	= form.fields_for :door do |door_form|
-		= door_form.input :door_type, as: :check_boxes, collection: Door.door_type_choices
+  = form.input :name, as: :string
+  = form.input :height, as: :float
+  = form.object.ensure_door
+  = form.fields_for :door do |door_form|
+    = door_form.input :door_type, as: :check_boxes, collection: Door.door_type_choices
 ```
 
 What's to see here? Notice that I was able to "ensure_door", which means that if there already is a door, it keeps that one, otherwise it builds a new door object. Also on the door_type input, notice the collection comes from a door_type_choices that came from the enumeration attribute. Also notice that the embedded model conforms to the API for accepts_nested_attributes, for both assignment and validation, only you don't have to specify it because the _attributes= method comes for free.
@@ -142,16 +165,16 @@ You can also embeds_many. It works the same way:
 
 ```ruby
 class Room
-	include ArDocStore::EmbeddableModel
-	attribute :length, as: :float
-	attribute :width, as: :float
-	attribute :height, as: :float
-	enumerates :light_switch_type, %w{flip knob switchplate clapper}
+  include ArDocStore::EmbeddableModel
+  attribute :length, as: :float
+  attribute :width, as: :float
+  attribute :height, as: :float
+  enumerates :light_switch_type, %w{flip knob switchplate clapper}
 end
 
 class Building ...
-	embeds_many :rooms
-	embeds_one :foyer, class_name: 'Room'
+  embeds_many :rooms
+  embeds_one :foyer, class_name: 'Room'
 end
 
 building = Building.new
@@ -227,10 +250,9 @@ end
 ```
 
 ## Roadmap
-1. Default values for attributes. (I haven't needed yet...)
-2. Ransackers for embedded model attributes. (I haven't needed yet, but may this summer when the inspiring project goes to phase 2...)
-3. It would be nice if you could use the AR fluent query API on stored attributes, where is knows to replace, say, "name" with "data->>name" but I don't see how to do that, and Ransack provides a nice enough wrapper around ARel to get the job done another way.
-4. Migration support to rename attributes, remove attributes. (I haven't needed yet...)
+1. Ransackers for embedded model attributes. Deliberately left out because when you have nested JSON, Postgres searches on any keys within the JSON become 10x slower.
+2. It would be nice if you could use the AR fluent query API on stored attributes, where is knows to replace, say, "name" with "data->>name" but I don't see how to do that, and Ransack provides a nice enough wrapper around ARel to get the job done another way.
+3. Migration support to rename attributes, remove attributes. (Right now just query the documents you need to change, iterate and update the JSON directly.)
 
 ## Contributing
 
