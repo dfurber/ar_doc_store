@@ -1,9 +1,6 @@
 module ArDocStore
-
   module EmbeddableModel
-
     def self.included(mod)
-
       mod.send :include, ActiveModel::AttributeMethods
       mod.send :include, ActiveModel::Validations
       mod.send :include, ActiveModel::Conversion
@@ -13,7 +10,7 @@ module ArDocStore
       mod.send :include, ArDocStore::Storage
       mod.send :include, ArDocStore::Embedding
       mod.send :include, InstanceMethods
-      mod.send :extend, ClassMethods
+      mod.send :extend,  ClassMethods
 
       mod.class_eval do
         attr_accessor :_destroy
@@ -89,7 +86,7 @@ module ArDocStore
       #:nodoc:
       def store_accessor(store, key)
         self.virtual_attributes ||= HashWithIndifferentAccess.new
-        virtual_attributes[key] ||= true
+        self.virtual_attributes = virtual_attributes.merge key =>  true
         key = key.to_sym
         define_method key, -> { read_store_attribute(:data, key) }
         define_method "#{key}=".to_sym, -> (value) { write_store_attribute :data, key, value }
