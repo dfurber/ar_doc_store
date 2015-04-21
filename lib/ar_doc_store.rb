@@ -11,9 +11,10 @@ require "ar_doc_store/attribute_types/float"
 require "ar_doc_store/attribute_types/integer"
 require "ar_doc_store/attribute_types/string"
 require "ar_doc_store/attribute_types/uuid"
+require "ar_doc_store/attribute_types/json"
 require "ar_doc_store/attribute_types/embeds_one"
 require "ar_doc_store/attribute_types/embeds_many"
-
+require 'hashie'
 module ArDocStore
   @mappings = Hash.new
   @mappings[:array]       = 'ArDocStore::AttributeTypes::ArrayAttribute'

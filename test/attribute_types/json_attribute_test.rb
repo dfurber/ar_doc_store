@@ -15,13 +15,13 @@ class JsonAttributeTest < MiniTest::Test
   
   def test_attribute_on_model_init
     b = Building.new api_response: api_response
-    assert_equal Hashie::Mash.new(api_response), b.api_response
+    assert_equal api_response, b.api_response
   end
 
   def test_attribute_on_existing_model
     b = Building.new
     b.api_response = api_response
-    assert_equal Hashie::Mash.new(api_response), b.api_response
+    assert_equal api_response, b.api_response
     assert b.api_response_changed?
   end
   
@@ -29,16 +29,5 @@ class JsonAttributeTest < MiniTest::Test
     b = Building.new api_response: api_response
     assert_equal true, b.api_response?
   end
-  
-  # def test_type_conversion_on_init
-  #   b = Building.new api_response: api_response
-  #   assert_equal Hashie::Mash.new(api_response), b.api_response
-  # end
-  
-  def test_type_conversion_on_existing
-    b = Building.new 
-    b.stories = '5'
-    assert_equal 5, b.stories
-  end
-  
+
 end
