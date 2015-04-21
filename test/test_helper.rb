@@ -26,7 +26,7 @@ class ARDuck
     @attributes = HashWithIndifferentAccess.new
     unless attrs.nil?
       attrs.each { |key, value|
-        @attributes[key] = value
+        @attributes[key] = public_send("#{key}=", value)
       }
     end
     @_initialized = true
@@ -127,11 +127,13 @@ end
 
 class Building < ARDuck
   include ArDocStore::Model
+  attribute :api_response, as: :json
   attribute :name, :string
   attribute :comments, as: :string
   attribute :finished, :boolean
   attribute :stories, as: :integer
   attribute :height, as: :float
+  attribute :architects, as: :array
   attribute :construction, as: :enumeration, values: %w{concrete wood brick plaster steel}
   attribute :multiconstruction, as: :enumeration, values: %w{concrete wood brick plaster steel}, multiple: true
   attribute :strict_enumeration, as: :enumeration, values: %w{happy sad glad bad}, strict: true

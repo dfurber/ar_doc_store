@@ -1,49 +1,6 @@
-require_relative './test_helper'
+require_relative './../test_helper'
 
-class ModelAttributeAccessTest < MiniTest::Test
-  def test_string_attribute_on_model_init
-    b = Building.new name: 'test'
-    assert_equal 'test', b.name
-  end
-
-  def test_string_attribute_on_existing_model
-    b = Building.new
-    b.name = 'test'
-    assert_equal 'test', b.name
-  end
-  
-  def test_boolean_attribute_on_model_init
-    b = Building.new finished: true
-    assert b.finished?
-  end
-  
-  def test_boolean_attribute_on_existing_model
-    b = Building.new
-    b.finished = true
-    assert b.finished?
-  end
-  
-  def test_float_attribute_on_init
-    b = Building.new height: 54.45
-    assert_equal 54.45, b.height
-  end
-  
-  def test_float_attribute_on_existing_model
-    b = Building.new
-    b.height = 54.45
-    assert_equal 54.45, b.height
-  end
-  
-  def test_int_attribute_on_init
-    b = Building.new stories: 5
-    assert_equal 5, b.stories
-  end
-  
-  def test_int_attribute_on_set
-    b = Building.new
-    b.stories = 5
-    assert_equal 5, b.stories
-  end
+class EnumerationAttributeTest < MiniTest::Test
   
   def test_simple_enumeration_attribute
     b = Building.new construction: 'wood'
@@ -96,5 +53,10 @@ class ModelAttributeAccessTest < MiniTest::Test
   def test_enumeration_has_choices_to_use_for_select
     assert Building.construction_choices.present?
   end
-    
+
+  def test_question_mark_method
+    b = Building.new strict_multi_enumeration: %w{glad bad}
+    assert_equal true, b.strict_multi_enumeration?
+  end
+
 end
