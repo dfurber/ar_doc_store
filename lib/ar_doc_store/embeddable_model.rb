@@ -36,18 +36,17 @@ module ArDocStore
         initialize_attributes attrs
       end
 
-      def instantiate(attrs)
+      def instantiate(attrs=HashWithIndifferentAccess.new)
         initialize_attributes attrs
+        # @changed_attributes = attributes
         @_initialized = true
         self
       end
 
       def initialize_attributes(attributes)
         @attributes = HashWithIndifferentAccess.new
-        id
         self.parent = attributes.delete(:parent) if attributes
         apply_attributes attributes
-        changed_attributes.delete 'id'
       end
 
       def apply_attributes(attrs=HashWithIndifferentAccess.new)
@@ -75,12 +74,16 @@ module ArDocStore
         @attributes[attr]
       end
 
-      def write_store_attribute(store, attr, value)
-        # if @_initialized
-        #   old_value = read_store_attribute(:data, attr)
-        #   changed_attributes[attr] = old_value
-        # end
-        @attributes[attr] = value
+      def write_store_attribute(store, attribute, value)
+        if @_initialized
+          old_value = @attributes[attribute]
+          if attribute.to_s != 'id' && value != old_value
+            public_send :"#{attribute}_will_change!"
+            parent.data_will_change! if parent
+          end
+
+        end
+        @attributes[attribute] = value
       end
 
       def write_default_store_attribute(attr, value)
@@ -90,7 +93,10 @@ module ArDocStore
       def to_param
         id
       end
-      
+
+      def id_will_change!
+      end
+
     end
     
     module ClassMethods

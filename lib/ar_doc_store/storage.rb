@@ -84,27 +84,6 @@ module ArDocStore
         end
       end
 
-      #:nodoc:
-      def store_attribute(attribute, typecast_method, predicate=nil, default_value=nil)
-        add_ransacker(attribute, predicate)
-        define_method attribute.to_sym, -> {
-          value = read_store_attribute(:data, attribute)
-          if value
-            value.public_send(typecast_method)
-          elsif default_value
-            write_default_store_attribute(attribute, default_value)
-            default_value
-          end
-        }
-        define_method "#{attribute}=".to_sym, -> (value) {
-          if value == '' || value.nil?
-            write_store_attribute :data, attribute, nil
-          else
-            write_store_attribute(:data, attribute, value.public_send(typecast_method))
-          end
-        }
-      end
-
       # Pretty much the same as define_attribute_method but skipping the matches that create read and write methods
       def define_virtual_attribute_method(attr_name)
         attr_name = attr_name.to_s

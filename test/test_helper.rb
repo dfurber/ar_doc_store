@@ -5,6 +5,7 @@ require 'minitest/autorun'
 require 'active_record'
 
 require_relative './../lib/ar_doc_store'
+ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'ar_doc_store_test', username: 'postgres', password: 'postgres')
 
 # A building has many entrances and restrooms and some fields of its own
 # An entrance has a door, a route, and some fields of its own
@@ -125,7 +126,7 @@ class Restroom
   
 end
 
-class Building < ARDuck
+class Building < ActiveRecord::Base
   include ArDocStore::Model
   attribute :name, :string
   attribute :comments, as: :string
