@@ -1,7 +1,7 @@
 module ArDocStore
   module AttributeTypes
     
-    class ArrayAttribute < Base
+    class ArrayAttribute < BaseAttribute
 
       def build
         key = attribute.to_sym

@@ -1,7 +1,7 @@
 module ArDocStore
   module AttributeTypes
 
-    class FloatAttribute < Base
+    class FloatAttribute < BaseAttribute
       def conversion
         :to_f
       end

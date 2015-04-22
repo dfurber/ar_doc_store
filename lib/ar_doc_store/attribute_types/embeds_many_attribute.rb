@@ -6,7 +6,7 @@ module ArDocStore
   
   module AttributeTypes
 
-    class EmbedsManyAttribute < Base
+    class EmbedsManyAttribute < BaseAttribute
 
       def build
         assn_name = attribute.to_sym
@@ -35,7 +35,7 @@ module ArDocStore
             my_class_name = class_name.constantize
             items = read_store_attribute(:data, assn_name)
             if items.is_a?(Array) || items.is_a?(ArDocStore::EmbeddedCollection)
-              items = ArDocStore::EmbeddedCollection.new items.map { |item| my_class_name.new(item) }
+              items = ArDocStore::EmbeddedCollection.new items.map { |item| my_class_name.build(item) }
             else
               items ||= ArDocStore::EmbeddedCollection.new
             end

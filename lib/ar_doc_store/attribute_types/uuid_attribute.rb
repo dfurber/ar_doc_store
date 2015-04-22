@@ -3,7 +3,7 @@ require 'securerandom'
 module ArDocStore
   module AttributeTypes
 
-    class UuidAttribute < Base
+    class UuidAttribute < BaseAttribute
       def build
         key = attribute.to_sym
         model.class_eval do

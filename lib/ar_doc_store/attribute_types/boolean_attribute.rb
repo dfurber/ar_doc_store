@@ -1,7 +1,7 @@
 module ArDocStore
   module AttributeTypes
 
-    class BooleanAttribute < Base
+    class BooleanAttribute < BaseAttribute
       def build
         key = attribute.to_sym
         model.class_eval do

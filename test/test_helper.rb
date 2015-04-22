@@ -127,7 +127,6 @@ end
 
 class Building < ARDuck
   include ArDocStore::Model
-  attribute :api_response, as: :json
   attribute :name, :string
   attribute :comments, as: :string
   attribute :finished, :boolean

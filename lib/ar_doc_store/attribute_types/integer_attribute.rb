@@ -1,17 +1,20 @@
 module ArDocStore
   module AttributeTypes
-    
-    class StringAttribute < Base
+
+    class IntegerAttribute < BaseAttribute
       def conversion
-        :to_s
+        :to_i
       end
 
       def predicate
-        'text'
+        'int'
+      end
+
+      def type
+        :number
       end
 
     end
 
   end
 end
-

@@ -3,19 +3,22 @@ require "ar_doc_store/storage"
 require "ar_doc_store/embedding"
 require "ar_doc_store/model"
 require "ar_doc_store/embeddable_model"
-require "ar_doc_store/attribute_types/base"
-require "ar_doc_store/attribute_types/array"
-require "ar_doc_store/attribute_types/boolean"
-require "ar_doc_store/attribute_types/enumeration"
-require "ar_doc_store/attribute_types/float"
-require "ar_doc_store/attribute_types/integer"
-require "ar_doc_store/attribute_types/string"
-require "ar_doc_store/attribute_types/uuid"
-require "ar_doc_store/attribute_types/json"
-require "ar_doc_store/attribute_types/embeds_one"
-require "ar_doc_store/attribute_types/embeds_many"
-require 'hashie'
+
 module ArDocStore
+
+  module AttributeTypes
+    autoload :BaseAttribute, "ar_doc_store/attribute_types/base_attribute"
+    autoload :ArrayAttribute, "ar_doc_store/attribute_types/array_attribute"
+    autoload :BooleanAttribute, "ar_doc_store/attribute_types/boolean_attribute"
+    autoload :EnumerationAttribute, "ar_doc_store/attribute_types/enumeration_attribute"
+    autoload :FloatAttribute, "ar_doc_store/attribute_types/float_attribute"
+    autoload :IntegerAttribute, "ar_doc_store/attribute_types/integer_attribute"
+    autoload :StringAttribute, "ar_doc_store/attribute_types/string_attribute"
+    autoload :UuidAttribute, "ar_doc_store/attribute_types/uuid_attribute"
+    autoload :EmbedsOneAttribute, "ar_doc_store/attribute_types/embeds_one_attribute"
+    autoload :EmbedsManyAttribute, "ar_doc_store/attribute_types/embeds_many_attribute"
+  end
+
   @mappings = Hash.new
   @mappings[:array]       = 'ArDocStore::AttributeTypes::ArrayAttribute'
   @mappings[:boolean]     = 'ArDocStore::AttributeTypes::BooleanAttribute'
@@ -23,7 +26,6 @@ module ArDocStore
   @mappings[:float]       = 'ArDocStore::AttributeTypes::FloatAttribute'
   @mappings[:integer]     = 'ArDocStore::AttributeTypes::IntegerAttribute'
   @mappings[:string]      = 'ArDocStore::AttributeTypes::StringAttribute'
-  @mappings[:json]        = 'ArDocStore::AttributeTypes::JsonAttribute'
   @mappings[:uuid]        = 'ArDocStore::AttributeTypes::UuidAttribute'
 
   def self.mappings

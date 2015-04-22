@@ -1,7 +1,7 @@
 module ArDocStore
   module AttributeTypes
 
-    class EnumerationAttribute < Base
+    class EnumerationAttribute < BaseAttribute
       
       def build
         key = attribute.to_sym

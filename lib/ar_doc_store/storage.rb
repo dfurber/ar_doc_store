@@ -67,8 +67,7 @@ module ArDocStore
         type ||= options.delete(:as) || :string
         class_name = ArDocStore.mappings[type] || "ArDocStore::AttributeTypes::#{type.to_s.classify}Attribute"
         raise "Invalid attribute type: #{class_name}" unless const_defined?(class_name)
-        class_name = class_name.constantize
-        class_name.build self, name, options
+        class_name.constantize.build self, name, options
         define_virtual_attribute_method name
         define_method "#{name}?", -> { public_send(name).present? }
       end
@@ -87,62 +86,25 @@ module ArDocStore
 
       #:nodoc:
       def store_attribute(attribute, typecast_method, predicate=nil, default_value=nil)
-        store_accessor :data, attribute
         add_ransacker(attribute, predicate)
-        if typecast_method.is_a?(Symbol)
-          store_attribute_from_symbol typecast_method, attribute, default_value
-        else
-          store_attribute_from_class typecast_method, attribute
-        end
-      end
-
-      #:nodoc:
-      def store_attribute_from_symbol(typecast_method, key, default_value)
-        define_method key.to_sym, -> { 
-          value = read_store_attribute(:data, key)
+        define_method attribute.to_sym, -> {
+          value = read_store_attribute(:data, attribute)
           if value
             value.public_send(typecast_method)
           elsif default_value
-            write_default_store_attribute(key, default_value)
+            write_default_store_attribute(attribute, default_value)
             default_value
           end
         }
-        define_method "#{key}=".to_sym, -> (value) {
+        define_method "#{attribute}=".to_sym, -> (value) {
           if value == '' || value.nil?
-            write_store_attribute :data, key, nil
+            write_store_attribute :data, attribute, nil
           else
-            write_store_attribute(:data, key, value.public_send(typecast_method))
+            write_store_attribute(:data, attribute, value.public_send(typecast_method))
           end
         }
       end
-      
-      # TODO: add default value support. 
-      # Default ought to be a hash of attributes, 
-      # also accept a proc that receives the newly initialized object
-      def store_attribute_from_class(class_name, key)
-        define_method key.to_sym, -> {
-          ivar = "@#{key}"
-          instance_variable_get(ivar) || begin
-            item = read_store_attribute(:data, key)
-            class_name = class_name.constantize if class_name.respond_to?(:constantize)
-            item = class_name.new(item) unless item.is_a?(class_name)
-            instance_variable_set ivar, item
-          end
-        }
-        define_method "#{key}=".to_sym, -> (value) {
-          ivar = "@#{key}"
-          existing = public_send(key)
-          class_name = class_name.constantize if class_name.respond_to?(:constantize)
-          if value == '' || !value
-            value = nil
-          elsif !value.is_a?(class_name)
-            value = existing.apply_attributes(value)
-          end
-          instance_variable_set ivar, value
-          write_store_attribute :data, key, value
-        }
-      end
-      
+
       # Pretty much the same as define_attribute_method but skipping the matches that create read and write methods
       def define_virtual_attribute_method(attr_name)
         attr_name = attr_name.to_s

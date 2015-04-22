@@ -22,6 +22,15 @@ module ArDocStore
         delegate :as_json, to: :attributes
         
         attribute :id, :uuid
+
+        def self.build(attrs=HashWithIndifferentAccess.new)
+          if attrs.is_a?(self.class)
+            attrs
+          else
+            instance = allocate
+            instance.instantiate attrs
+          end
+        end
       end
 
     end
@@ -29,10 +38,18 @@ module ArDocStore
     module InstanceMethods
       
       def initialize(attrs=HashWithIndifferentAccess.new)
+        @_initialized = true
+        @attributes = HashWithIndifferentAccess.new
+        self.parent = attrs.delete(:parent) if attrs
+        apply_attributes attrs
+      end
+
+      def instantiate(attrs)
         @attributes = HashWithIndifferentAccess.new
         self.parent = attrs.delete(:parent) if attrs
         apply_attributes attrs
         @_initialized = true
+        self
       end
 
       def apply_attributes(attrs=HashWithIndifferentAccess.new)

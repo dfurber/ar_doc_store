@@ -1,6 +1,6 @@
 module ArDocStore
   module AttributeTypes
-    class Base
+    class BaseAttribute
       attr_accessor :conversion, :predicate, :options, :model, :attribute, :default
 
       def self.build(model, attribute, options={})
