@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module ArDocStore
   module EmbeddableModel
     def self.included(mod)
@@ -23,14 +25,6 @@ module ArDocStore
         
         attribute :id, :uuid
 
-        def self.build(attrs=HashWithIndifferentAccess.new)
-          if attrs.is_a?(self.class)
-            attrs
-          else
-            instance = allocate
-            instance.instantiate attrs
-          end
-        end
       end
 
     end
@@ -39,17 +33,21 @@ module ArDocStore
       
       def initialize(attrs=HashWithIndifferentAccess.new)
         @_initialized = true
-        @attributes = HashWithIndifferentAccess.new
-        self.parent = attrs.delete(:parent) if attrs
-        apply_attributes attrs
+        initialize_attributes attrs
       end
 
       def instantiate(attrs)
-        @attributes = HashWithIndifferentAccess.new
-        self.parent = attrs.delete(:parent) if attrs
-        apply_attributes attrs
+        initialize_attributes attrs
         @_initialized = true
         self
+      end
+
+      def initialize_attributes(attributes)
+        @attributes = HashWithIndifferentAccess.new
+        id
+        self.parent = attributes.delete(:parent) if attributes
+        apply_attributes attributes
+        changed_attributes.delete 'id'
       end
 
       def apply_attributes(attrs=HashWithIndifferentAccess.new)
@@ -65,12 +63,6 @@ module ArDocStore
         self
       end
       
-      # TODO: This doesn't work very well for embeds_many because the parent needs to have its setter triggered
-      # before the embedded model will actually get saved.
-      def save
-        parent && parent.save
-      end
-
       def persisted?
         false
       end
@@ -79,17 +71,20 @@ module ArDocStore
         "#{self.class}: #{attributes.inspect}"
       end
 
-      def read_store_attribute(store, key)
-        @attributes[key]
+      def read_store_attribute(store, attr)
+        @attributes[attr]
       end
 
-      def write_store_attribute(store, key, value)
-        changed_attributes[key] = read_store_attribute(:data, key) if @_initialized
-        @attributes[key] = value
+      def write_store_attribute(store, attr, value)
+        # if @_initialized
+        #   old_value = read_store_attribute(:data, attr)
+        #   changed_attributes[attr] = old_value
+        # end
+        @attributes[attr] = value
       end
 
-      def write_default_store_attribute(key, value)
-        @attributes[key] = value
+      def write_default_store_attribute(attr, value)
+        @attributes[attr] = value
       end
 
       def to_param
@@ -108,7 +103,17 @@ module ArDocStore
         define_method key, -> { read_store_attribute(:data, key) }
         define_method "#{key}=".to_sym, -> (value) { write_store_attribute :data, key, value }
       end
-      
+
+      def build(attrs=HashWithIndifferentAccess.new)
+        if attrs.is_a?(self.class)
+          attrs
+        else
+          instance = allocate
+          instance.instantiate attrs
+        end
+      end
+
+
     end
 
   end

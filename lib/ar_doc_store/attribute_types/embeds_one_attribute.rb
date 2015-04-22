@@ -24,11 +24,10 @@ module ArDocStore
         def #{assn_name}=(value)
           if value == '' || !value
             value = nil
-          elsif !value.is_a?(#{class_name})
-            value = #{class_name}.build value
-          else
-
+          elsif value.is_a?(#{class_name})
+            value = value.attributes
           end
+          value = #{class_name}.build value
           @#{assn_name} = value
           write_store_attribute :data, :#{assn_name}, value
         end
@@ -53,8 +52,9 @@ module ArDocStore
           if values[:_destroy] && (values[:_destroy] == '1')
             self.#{assn_name} = nil
           else
-            self.#{assn_name} = values
+            #{assn_name}.apply_attributes values
           end
+          #{assn_name}
         end
         CODE
       end

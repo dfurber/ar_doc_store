@@ -67,8 +67,7 @@ module ArDocStore
       def create_build_method_for(assn_name, class_name)
         add_method "build_#{assn_name.to_s.singularize}", -> (attributes=nil) {
           assns = self.public_send assn_name
-          item = class_name.constantize.new attributes
-          item.id
+          item = class_name.constantize.build attributes
           item.parent = self
           assns << item
           public_send "#{assn_name}=", assns
