@@ -9,6 +9,7 @@ The use case is primarily when you have a rapidly evolving schema with scores of
 Learn more about the JSON column in Postgres and using it as a document store:
 * The Rails Guide on Postgres: http://edgeguides.rubyonrails.org/active_record_postgresql.html
 * Document Store Gymnastics: http://rob.conery.io/2015/03/01/document-storage-gymnastics-in-postgres/ 
+* Query JSON with Rails 4.2 and Postgres 9.4: http://robertbeene.com/rails-4-2-and-postgresql-9-4/
 * PG as NoSQL: http://thebuild.com%5Cpresentations%5Cpg-as-nosql-pgday-fosdem-2013.pdf
 * Why JSON in PostgreSQL is Awesome: https://functionwhatwhat.com/json-in-postgresql/
 * Indexing JSONB: http://michael.otacoo.com/postgresql-2/postgres-9-4-feature-highlight-indexing-jsonb/
