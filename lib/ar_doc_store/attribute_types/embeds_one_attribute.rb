@@ -2,69 +2,69 @@ module ArDocStore
   module AttributeTypes
 
     class EmbedsOneAttribute < BaseAttribute
+      attr_reader :class_name
       def build
-        assn_name = attribute.to_sym
-        class_name = options[:class_name] || attribute.to_s.classify
-        create_accessors assn_name, class_name
-        create_embed_one_attributes_method(assn_name)
-        create_embeds_one_accessors assn_name, class_name
-        create_embeds_one_validation(assn_name)
+        @class_name = options[:class_name] || attribute.to_s.classify
+        create_accessors
+        create_embed_one_attributes_method
+        create_embeds_one_accessors
+        create_embeds_one_validation
       end
 
-      def create_accessors(assn_name, class_name)
+      def create_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{assn_name}
-          @#{assn_name} || begin
-            item = read_store_attribute :data, :#{assn_name}
+        def #{attribute}
+          @#{attribute} || begin
+            item = read_store_attribute :data, :#{attribute}
             item = #{class_name}.build(item) unless item.is_a?(#{class_name})
-            @#{assn_name} = item
+            @#{attribute} = item
           end
         end
 
-        def #{assn_name}=(value)
+        def #{attribute}=(value)
           if value == '' || !value
             value = nil
           elsif value.is_a?(#{class_name})
             value = value.attributes
           end
           value = #{class_name}.build value
-          @#{assn_name} = value
-          write_store_attribute :data, :#{assn_name}, value
+          @#{attribute} = value
+          write_store_attribute :data, :#{attribute}, value
         end
         CODE
       end
 
-      def create_embeds_one_accessors(assn_name, class_name)
+      def create_embeds_one_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def build_#{assn_name}(attributes=nil)
-          self.#{assn_name} = #{class_name}.build(attributes)
+        def build_#{attribute}(attributes=nil)
+          self.#{attribute} = #{class_name}.build(attributes)
         end
-        def ensure_#{assn_name}
-          #{assn_name} || build_#{assn_name}
+        def ensure_#{attribute}
+          #{attribute} || build_#{attribute}
         end
         CODE
       end
 
-      def create_embed_one_attributes_method(assn_name)
+      def create_embed_one_attributes_method
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{assn_name}_attributes=(values={})
+        def #{attribute}_attributes=(values={})
           values.symbolize_keys! if values.respond_to?(:symbolize_keys!)
           if values[:_destroy] && (values[:_destroy] == '1')
-            self.#{assn_name} = nil
+            self.#{attribute} = nil
           else
-            #{assn_name}.apply_attributes values
+            item = ensure_#{attribute}
+            item.attributes = values
           end
-          #{assn_name}
         end
         CODE
       end
 
-      def create_embeds_one_validation(assn_name)
+      def create_embeds_one_validation
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-          def validate_embedded_record_for_#{assn_name}
-            validate_embeds_one :#{assn_name}
+          def validate_embedded_record_for_#{attribute}
+            validate_embeds_one :#{attribute}
           end
-          validate :validate_embedded_record_for_#{assn_name}
+          validate :validate_embedded_record_for_#{attribute}
         CODE
       end
       

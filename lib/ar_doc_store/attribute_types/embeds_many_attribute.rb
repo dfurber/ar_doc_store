@@ -147,7 +147,7 @@ module ArDocStore
       end
       
       def update_attributes(model, value)
-        model.apply_attributes(value)
+        model.attributes = value
       end
       
       def wants_to_die?(value)

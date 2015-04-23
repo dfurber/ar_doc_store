@@ -16,7 +16,8 @@ module ArDocStore
 
       mod.class_eval do
         attr_accessor :_destroy
-        attr_accessor :attributes, :parent
+        attr_accessor :parent
+        attr_reader :attributes
 
         class_attribute :virtual_attributes
         self.virtual_attributes ||= HashWithIndifferentAccess.new
@@ -38,18 +39,17 @@ module ArDocStore
 
       def instantiate(attrs=HashWithIndifferentAccess.new)
         initialize_attributes attrs
-        # @changed_attributes = attributes
         @_initialized = true
         self
       end
 
-      def initialize_attributes(attributes)
-        @attributes = HashWithIndifferentAccess.new
+      def initialize_attributes(attrs)
+        @attributes ||= HashWithIndifferentAccess.new
         self.parent = attributes.delete(:parent) if attributes
-        apply_attributes attributes
+        self.attributes = attrs
       end
 
-      def apply_attributes(attrs=HashWithIndifferentAccess.new)
+      def attributes=(attrs=HashWithIndifferentAccess.new)
         virtual_attributes.keys.each do |attr|
           @attributes[attr] ||= nil
         end
@@ -71,23 +71,23 @@ module ArDocStore
       end
 
       def read_store_attribute(store, attr)
-        @attributes[attr]
+        attributes[attr]
       end
 
       def write_store_attribute(store, attribute, value)
         if @_initialized
-          old_value = @attributes[attribute]
+          old_value = attributes[attribute]
           if attribute.to_s != 'id' && value != old_value
             public_send :"#{attribute}_will_change!"
             parent.data_will_change! if parent
           end
 
         end
-        @attributes[attribute] = value
+        attributes[attribute] = value
       end
 
       def write_default_store_attribute(attr, value)
-        @attributes[attr] = value
+        attributes[attr] = value
       end
 
       def to_param
