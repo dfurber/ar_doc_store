@@ -157,6 +157,7 @@ end
   = form.input :height, as: :float
   = form.object.ensure_door
   = form.fields_for :door do |door_form|
+    = door_form.input :id # <-- because fields_for won't output the hidden id field for us - not a bad thing to put it where you want it instead of where they put it
     = door_form.input :door_type, as: :check_boxes, collection: Door.door_type_choices
 ```
 
