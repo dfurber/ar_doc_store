@@ -11,7 +11,7 @@ module ArDocStore
       def build
         assn_name = attribute.to_sym
         class_name = options[:class_name] || attribute.to_s.classify
-        model.store_accessor :data, assn_name
+        model.store_accessor model.json_column, assn_name
         create_reader_for assn_name, class_name
         create_writer_for assn_name, class_name
         create_build_method_for assn_name, class_name
@@ -33,7 +33,7 @@ module ArDocStore
           ivar = "@#{assn_name}"
           instance_variable_get(ivar) || begin
             my_class_name = class_name.constantize
-            items = read_store_attribute(:data, assn_name)
+            items = read_store_attribute(json_column, assn_name)
             if items.is_a?(Array) || items.is_a?(ArDocStore::EmbeddedCollection)
               items = ArDocStore::EmbeddedCollection.new items.map { |item| item.is_a?(my_class_name) ? item : my_class_name.build(item) }
             else
@@ -60,7 +60,7 @@ module ArDocStore
             items = []
           end
           items.parent = self
-          instance_variable_set "@#{assn_name}", write_store_attribute(:data, assn_name, items)
+          instance_variable_set "@#{assn_name}", write_store_attribute(json_column, assn_name, items)
         }
       end
 

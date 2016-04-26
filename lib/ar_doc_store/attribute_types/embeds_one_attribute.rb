@@ -15,7 +15,7 @@ module ArDocStore
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{attribute}
           @#{attribute} || begin
-            item = read_store_attribute :data, :#{attribute}
+            item = read_store_attribute json_column, :#{attribute}
             item = #{class_name}.build(item) unless item.is_a?(#{class_name})
             @#{attribute} = item
           end
@@ -29,7 +29,7 @@ module ArDocStore
           end
           value = #{class_name}.build value
           @#{attribute} = value
-          write_store_attribute :data, :#{attribute}, value
+          write_store_attribute json_column, :#{attribute}, value
         end
         CODE
       end
@@ -67,7 +67,7 @@ module ArDocStore
           validate :validate_embedded_record_for_#{attribute}
         CODE
       end
-      
+
     end
 
   end

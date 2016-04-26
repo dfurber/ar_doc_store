@@ -7,17 +7,17 @@ module ArDocStore
       def build
         key = attribute.to_sym
         model.class_eval do
-          store_accessor :data, key
+          store_accessor json_column, key
           define_method key, -> {
-            value = read_store_attribute(:data, key)
+            value = read_store_attribute(json_column, key)
             unless value
               value = SecureRandom.uuid
-              write_store_attribute :data, key, value
+              write_store_attribute json_column, key, value
             end
             value
           }
           define_method "#{key}=".to_sym, -> (value) {
-            write_store_attribute(:data, key, value)
+            write_store_attribute(json_column, key, value)
           }
           add_ransacker(key, 'text')
         end

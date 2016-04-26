@@ -21,17 +21,17 @@ module ArDocStore
 
         class_attribute :virtual_attributes
         self.virtual_attributes ||= HashWithIndifferentAccess.new
-        
+
         delegate :as_json, to: :attributes
-        
+
         attribute :id, :uuid
 
       end
 
     end
-    
+
     module InstanceMethods
-      
+
       def initialize(attrs=HashWithIndifferentAccess.new)
         @_initialized = true
         initialize_attributes attrs
@@ -61,7 +61,7 @@ module ArDocStore
         end
         self
       end
-      
+
       def persisted?
         false
       end
@@ -98,16 +98,16 @@ module ArDocStore
       end
 
     end
-    
+
     module ClassMethods
-      
+
       #:nodoc:
       def store_accessor(store, key)
         self.virtual_attributes ||= HashWithIndifferentAccess.new
         self.virtual_attributes = virtual_attributes.merge key =>  true
         key = key.to_sym
-        define_method key, -> { read_store_attribute(:data, key) }
-        define_method "#{key}=".to_sym, -> (value) { write_store_attribute :data, key, value }
+        define_method key, -> { read_store_attribute(json_column, key) }
+        define_method "#{key}=".to_sym, -> (value) { write_store_attribute json_column, key, value }
       end
 
       def build(attrs=HashWithIndifferentAccess.new)
@@ -124,4 +124,3 @@ module ArDocStore
 
   end
 end
-

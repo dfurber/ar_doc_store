@@ -45,8 +45,8 @@ class ARDuck
 
   def self.store_accessor(store, key)
     key = key.to_sym
-    define_method key, -> { read_store_attribute(:data, key) }
-    define_method "#{key}=".to_sym, -> (value) { write_store_attribute :data, key, value }
+    define_method key, -> { read_store_attribute(json_column, key) }
+    define_method "#{key}=".to_sym, -> (value) { write_store_attribute json_column, key, value }
   end
 
   def read_store_attribute(store, key)
@@ -113,7 +113,7 @@ class Restroom
   include ArDocStore::EmbeddableModel
   embeds_one :route
   embeds_one :door
-  
+
   enumerates :restroom_type, values: %w{single double dirty nasty clean}
 
   attribute :is_restroom_provided, as: :boolean
@@ -121,9 +121,9 @@ class Restroom
 
   embeds_one :stall_area_dimensions, class_name: 'Dimensions'
   embeds_one :sink_area_dimensions, class_name: 'Dimensions'
-  
+
   validates :restroom_type, presence: true
-  
+
 end
 
 class Building < ActiveRecord::Base
@@ -141,4 +141,3 @@ class Building < ActiveRecord::Base
   embeds_many :entrances
   embeds_many :restrooms
 end
-

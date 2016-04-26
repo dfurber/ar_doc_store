@@ -1,20 +1,26 @@
 module ArDocStore
   module Storage
-    
+
     def self.included(mod)
-      
+
+      mod.class_attribute :json_column
+      mod.json_column ||= :data
       mod.class_attribute :virtual_attributes
       mod.virtual_attributes ||= HashWithIndifferentAccess.new
-      
+
       mod.send :include, InstanceMethods
       mod.send :extend, ClassMethods
     end
-    
+
     module InstanceMethods
-      
+
+      def json_column
+        self.class.json_column
+      end
+
       def write_attribute(name, value)
         if is_stored_attribute?(name)
-          write_store_attribute :data, attribute_name_from_foreign_key(name), value
+          write_store_attribute json_column, attribute_name_from_foreign_key(name), value
         else
           super
         end
@@ -22,14 +28,14 @@ module ArDocStore
 
       def read_attribute(name)
         if is_stored_attribute?(name)
-          read_store_attribute :data, attribute_name_from_foreign_key(name)
+          read_store_attribute json_column, attribute_name_from_foreign_key(name)
         else
           super
         end
       end
 
       private
-      
+
       def is_stored_attribute?(name)
         name = name.to_sym
         is_store_accessor_method?(name) || name =~ /data\-\>\>/
@@ -37,7 +43,7 @@ module ArDocStore
 
       def is_store_accessor_method?(name)
         name = name.to_sym
-        self.class.stored_attributes[:data] && self.class.stored_attributes[:data].include?(name)
+        self.class.stored_attributes[json_column] && self.class.stored_attributes[json_column].include?(name)
       end
 
       def attribute_name_from_foreign_key(name)
@@ -58,9 +64,9 @@ module ArDocStore
         super clean_attribute_names_for_arel(attribute_names)
       end
     end
-    
+
     module ClassMethods
-      
+
       def attribute(name, *args)
         type = args.shift if args.first.is_a?(Symbol)
         options = args.extract_options!
@@ -147,8 +153,8 @@ module ArDocStore
         attribute field, options
       end
 
-    
+
     end
-    
+
   end
 end

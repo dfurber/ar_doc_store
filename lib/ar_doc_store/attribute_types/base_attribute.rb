@@ -26,7 +26,7 @@ module ArDocStore
         model.class_eval do
           add_ransacker(attribute, predicate)
           define_method attribute.to_sym, -> {
-            value = read_store_attribute(:data, attribute)
+            value = read_store_attribute(json_column, attribute)
             if value
               value.public_send(typecast_method)
             elsif default_value
@@ -36,9 +36,9 @@ module ArDocStore
           }
           define_method "#{attribute}=".to_sym, -> (value) {
             if value == '' || value.nil?
-              write_store_attribute :data, attribute, nil
+              write_store_attribute json_column, attribute, nil
             else
-              write_store_attribute(:data, attribute, value.public_send(typecast_method))
+              write_store_attribute(json_column, attribute, value.public_send(typecast_method))
             end
           }
         end

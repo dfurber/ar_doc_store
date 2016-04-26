@@ -1,6 +1,6 @@
 # ArDocStore
 
-ArDocStore (pronounced R-Dock-Store) is a gem helps you implement a document store in ActiveRecord models that have access to the PostgreSQL JSON data type. You add a json column to your table called "data", include the ArDocStore::Model module, and then add schema-less attributes that get stored in the data column. With Ransack, these attributes are searchable as if they were real columns. 
+ArDocStore (pronounced R-Dock-Store) is a gem helps you implement a document store in ActiveRecord models that have access to the PostgreSQL JSON data type. You add a json column to your table called "data", include the ArDocStore::Model module, and then add schema-less attributes that get stored in the data column. With Ransack, these attributes are searchable as if they were real columns.
 
 There is also support for embedding models within models. These embedded models can be accessed from Rails form builders using fields_for.
 
@@ -8,7 +8,7 @@ The use case is primarily when you have a rapidly evolving schema with scores of
 
 Learn more about the JSON column in Postgres and using it as a document store:
 * The Rails Guide on Postgres: http://edgeguides.rubyonrails.org/active_record_postgresql.html
-* Document Store Gymnastics: http://rob.conery.io/2015/03/01/document-storage-gymnastics-in-postgres/ 
+* Document Store Gymnastics: http://rob.conery.io/2015/03/01/document-storage-gymnastics-in-postgres/
 * Query JSON with Rails 4.2 and Postgres 9.4: http://robertbeene.com/rails-4-2-and-postgresql-9-4/
 * PG as NoSQL: http://thebuild.com%5Cpresentations%5Cpg-as-nosql-pgday-fosdem-2013.pdf
 * Why JSON in PostgreSQL is Awesome: https://functionwhatwhat.com/json-in-postgresql/
@@ -49,21 +49,30 @@ class Building < ActiveRecord::Base
 end
 ```
 
+You don't have to use "data" as the column name. Use something else like do:
+```ruby
+class Building < ActiveRecord::Base
+  include ArDocStore::Model
+  self.json_column = :json_data
+end
+```
+
+
 ### Attributes
 
 Now there are several ways to play but all boil down to one method on the model:
 ```ruby
 class Building < ActiveRecord::Base
   include ArDocStore::Model
-	
+
   attribute :name, :string
   attribute :width, :float
   attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
   attribute :storeys, :integer
   attribute :finished, :boolean
-  attribute :construction_type, :enumeration, 
-            values: %w{wood plaster mud brick}, 
-            multiple: true, 
+  attribute :construction_type, :enumeration,
+            values: %w{wood plaster mud brick},
+            multiple: true,
             strict: true
 end
 ```
@@ -81,10 +90,10 @@ You noticed the enumeration type on the construction_type takes an array. That's
 
 ```ruby
 class Building ...
-  attribute :construction_type, 
-            :enumeration, 
-            values: %w{wood plaster mud brick}, 
-            multiple: true, 
+  attribute :construction_type,
+            :enumeration,
+            values: %w{wood plaster mud brick},
+            multiple: true,
             strict: true
 end
 building = Building.new
@@ -101,17 +110,17 @@ Let's say that a building has a door. The building is not the only thing in our 
 ```ruby
 class Door
   include ArDocStore::EmbeddableModel
-	
-  enumerates :door_type, 
-             multiple: true, 
+
+  enumerates :door_type,
+             multiple: true,
              values: %w{single double french sliding push pull}
   attribute :open_handle,  
-            as: :enumeration, 
-            multiple: true, 
+            as: :enumeration,
+            multiple: true,
             values: %w{push pull plate knob handle}
-  attribute :close_handle, 
-            as: :enumeration, 
-            multiple: true, 
+  attribute :close_handle,
+            as: :enumeration,
+            multiple: true,
             values: %w{push pull plate knob handle}
   attribute :clear_distance, as: :integer
   attribute :opening_force, as: :integer
