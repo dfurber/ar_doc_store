@@ -226,7 +226,7 @@ end
 
 ```
 
-The data is put into a JSON column, so we want to make sure we serialize it correctly. The `conversion` method is a symbol or a string and is sent to the data when it is written and read. This makes sure that the data doesn't go in a integer and come back as a string. The `predicate` method tells Postgres (via the ransacker) how to cast the JSON for searching.
+The data is put into a JSON column, so we want to make sure we serialize it correctly. The `conversion` method is a symbol or a string. It is called by the `dump` and `load` (in `BaseAttribute`) methods and is sent to the data when it is written and read. This makes sure that the data doesn't go in a integer and come back as a string. The `predicate` method tells Postgres (via the ransacker) how to cast the JSON for searching.
 
 Not all attribute types are that simple. Sometimes we have to put all the juice in the `build` method, and take care to define the getter and setter ourselves. In this example, we want to replace the boolean attribute with a similar boolean that can do Yes, No, and N/A, where N/A isn't simply nil but something the user has to choose. Here goes:
 
@@ -269,37 +269,10 @@ end
 
 #### What if I need different conversions for reading and writing?
 
-The `:datetime` attribute requires the data be cast to a string when written, but cast to a `Time` object when read. This does not use the `conversion` method but `dump` and `load` methods instead. Here is the implementation:
+The `:datetime` attribute requires the data be cast to a string when written, but cast to a `Time` object when read. This overrides the `dump` and `load` methods instead. Here is the implementation:
 
 ```ruby
 class DatetimeAttribute < ArDocStore::AttributeTypes::BaseAttribute
-  def build
-    attribute = @attribute
-    load_method = load
-    dump_method = dump
-    default_value = default
-    json_column = :data
-    model.class_eval do
-      add_ransacker(attribute, 'timestamp')
-      define_method attribute.to_sym, -> {
-        value = read_store_attribute(json_column, attribute)
-        if value
-          value.public_send(dump_method)
-        elsif default_value
-          write_default_store_attribute(attribute, default_value)
-          default_value
-        end
-      }
-      define_method "#{attribute}=".to_sym, -> (value) {
-        if value.blank?
-          write_store_attribute(json_column, attribute, nil)
-        else
-          write_store_attribute(json_column, attribute, value.public_send(load_method))
-        end
-      }
-    end
-  end
-
   def type
     :datetime
   end
