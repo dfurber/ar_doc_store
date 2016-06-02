@@ -17,6 +17,7 @@ module ArDocStore
     autoload :UuidAttribute, "ar_doc_store/attribute_types/uuid_attribute"
     autoload :EmbedsOneAttribute, "ar_doc_store/attribute_types/embeds_one_attribute"
     autoload :EmbedsManyAttribute, "ar_doc_store/attribute_types/embeds_many_attribute"
+    autoload :DatetimeAttribute, "ar_doc_store/attribute_types/datetime_attribute"
   end
 
   @mappings = Hash.new
@@ -27,11 +28,12 @@ module ArDocStore
   @mappings[:integer]     = 'ArDocStore::AttributeTypes::IntegerAttribute'
   @mappings[:string]      = 'ArDocStore::AttributeTypes::StringAttribute'
   @mappings[:uuid]        = 'ArDocStore::AttributeTypes::UuidAttribute'
+  @mappings[:datetime]    = 'ArDocStore::AttributeTypes::DatetimeAttribute'
 
   def self.mappings
     @mappings
   end
-  
+
   def self.convert_boolean(bool)
     if bool.is_a?(String)
       return true if bool == true || bool =~ (/^(true|t|yes|y|1)$/i)
