@@ -20,15 +20,16 @@ module ArDocStore
       #:nodoc:
       def store_attribute
         attribute = @attribute
-        typecast_method = conversion
-        predicate = @predicate
+        predicate_method = predicate
         default_value = default
+        dump_method = dump
+        load_method = load
         model.class_eval do
-          add_ransacker(attribute, predicate)
+          add_ransacker(attribute, predicate_method)
           define_method attribute.to_sym, -> {
             value = read_store_attribute(json_column, attribute)
             if value
-              value.public_send(typecast_method)
+              value.public_send(load_method)
             elsif default_value
               write_default_store_attribute(attribute, default_value)
               default_value
@@ -38,15 +39,23 @@ module ArDocStore
             if value == '' || value.nil?
               write_store_attribute json_column, attribute, nil
             else
-              write_store_attribute(json_column, attribute, value.public_send(typecast_method))
+              write_store_attribute(json_column, attribute, value.public_send(dump_method))
             end
           }
         end
       end
 
+      def conversion
+        :to_s
+      end
 
+      def dump
+        conversion
+      end
 
+      def load
+        conversion
+      end
     end
-
   end
 end
