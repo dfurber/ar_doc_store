@@ -20,7 +20,7 @@ module ArDocStore
           }
           define_method "#{attribute}=".to_sym, -> (value) {
             if value.blank?
-              return
+              write_store_attribute(json_column, attribute, nil)
             else
               write_store_attribute(json_column, attribute, value.public_send(load_method))
             end
