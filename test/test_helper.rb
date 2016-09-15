@@ -86,11 +86,11 @@ end
 
 class Route
   include ArDocStore::EmbeddableModel
-  attribute :is_route_unobstructed, as: :boolean
-  attribute :is_route_lighted, as: :boolean
-  attribute :route_surface, as: :string
-  attribute :route_slope_percent, as: :integer
-  attribute :route_min_width, as: :integer
+  json_attribute :is_route_unobstructed, as: :boolean
+  json_attribute :is_route_lighted, as: :boolean
+  json_attribute :route_surface, as: :string
+  json_attribute :route_slope_percent, as: :integer
+  json_attribute :route_min_width, as: :integer
 end
 
 class Door

@@ -65,12 +65,12 @@ Now there are several ways to play but all boil down to one method on the model:
 class Building < ActiveRecord::Base
   include ArDocStore::Model
 
-  attribute :name, :string
-  attribute :width, :float
-  attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
-  attribute :storeys, :integer
-  attribute :finished, :boolean
-  attribute :construction_type, :enumeration,
+  json_attribute :name, :string
+  json_attribute :width, :float
+  json_attribute :height, as: :float # the :as is optional but if you like the consistency with SimpleForm
+  json_attribute :storeys, :integer
+  json_attribute :finished, :boolean
+  json_attribute :construction_type, :enumeration,
             values: %w{wood plaster mud brick},
             multiple: true,
             strict: true
@@ -90,7 +90,7 @@ You noticed the enumeration type on the construction_type takes an array. That's
 
 ```ruby
 class Building ...
-  attribute :construction_type,
+  json_attribute :construction_type,
             :enumeration,
             values: %w{wood plaster mud brick},
             multiple: true,
@@ -114,17 +114,17 @@ class Door
   enumerates :door_type,
              multiple: true,
              values: %w{single double french sliding push pull}
-  attribute :open_handle,  
+  json_attribute :open_handle,  
             as: :enumeration,
             multiple: true,
             values: %w{push pull plate knob handle}
-  attribute :close_handle,
+  json_attribute :close_handle,
             as: :enumeration,
             multiple: true,
             values: %w{push pull plate knob handle}
-  attribute :clear_distance, as: :integer
-  attribute :opening_force, as: :integer
-  attribute :clear_space, as: :integer
+  json_attribute :clear_distance, as: :integer
+  json_attribute :opening_force, as: :integer
+  json_attribute :clear_space, as: :integer
 end
 ```
 
@@ -177,9 +177,9 @@ You can also embeds_many. It works the same way:
 ```ruby
 class Room
   include ArDocStore::EmbeddableModel
-  attribute :length, as: :float
-  attribute :width, as: :float
-  attribute :height, as: :float
+  json_attribute :length, as: :float
+  json_attribute :width, as: :float
+  json_attribute :height, as: :float
   enumerates :light_switch_type, %w{flip knob switchplate clapper}
 end
 
