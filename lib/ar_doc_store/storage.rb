@@ -67,7 +67,7 @@ module ArDocStore
 
     module ClassMethods
 
-      def attribute(name, *args)
+      def json_attribute(name, *args)
         type = args.shift if args.first.is_a?(Symbol)
         options = args.extract_options!
         type ||= options.delete(:as) || :string
@@ -120,28 +120,28 @@ module ArDocStore
       # Allows you to define several string attributes at once. Deprecated.
       def string_attributes(*args)
         args.each do |arg|
-          attribute arg, as: :string
+          json_attribute arg, as: :string
         end
       end
 
       # Allows you to define several float attributes at once. Deprecated.
       def float_attributes(*args)
         args.each do |arg|
-          attribute arg, as: :float
+          json_attribute arg, as: :float
         end
       end
 
       # Allows you to define several integer attributes at once. Deprecated.
       def integer_attributes(*args)
         args.each do |arg|
-          attribute arg, as: :integer
+          json_attribute arg, as: :integer
         end
       end
 
       # Allows you to define several boolean attributes at once. Deprecated.
       def boolean_attributes(*args)
         args.each do |arg|
-          attribute arg, as: :boolean
+          json_attribute arg, as: :boolean
         end
       end
 
@@ -150,7 +150,7 @@ module ArDocStore
       def enumerates(field, *args)
         options = args.extract_options!
         options[:as] = :enumeration
-        attribute field, options
+        json_attribute field, options
       end
 
 

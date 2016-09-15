@@ -1,25 +1,25 @@
 module ArDocStore
   module Embedding
     def self.included(mod)
-      mod.send :extend, ClassMethods        
+      mod.send :extend, ClassMethods
       mod.send :include, InstanceMethods
     end
-    
+
     module ClassMethods
 
       def embeds_many(assn_name, *args)
-        attribute assn_name, :embeds_many, *args
+        json_attribute assn_name, :embeds_many, *args
       end
 
       def embeds_one(assn_name, *args)
-        attribute assn_name, :embeds_one, *args
+        json_attribute assn_name, :embeds_one, *args
       end
 
     end
-    
-  
+
+
     module InstanceMethods
-    
+
       # Returns whether or not the association is valid and applies any errors to
       # the parent, <tt>self</tt>, if it wasn't. Skips any <tt>:autosave</tt>
       # enabled records if they're marked_for_destruction? or destroyed.

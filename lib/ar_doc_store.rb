@@ -31,7 +31,7 @@ module ArDocStore
   def self.mappings
     @mappings
   end
-  
+
   def self.convert_boolean(bool)
     if bool.is_a?(String)
       return true if bool == true || bool =~ (/^(true|t|yes|y|1)$/i)
@@ -46,5 +46,12 @@ module ArDocStore
       return nil
     end
   end
-end
 
+  def self.clobber_attribute_method!
+    ArDocStore::Storage::ClassMethods.module_eval do
+      def attribute(*args)
+        json_attribute *args
+      end
+    end
+  end
+end

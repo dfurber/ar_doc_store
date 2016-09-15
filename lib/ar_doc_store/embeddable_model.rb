@@ -24,7 +24,11 @@ module ArDocStore
 
         delegate :as_json, to: :attributes
 
-        attribute :id, :uuid
+        json_attribute :id, :uuid
+
+        def self.attribute(name, *args)
+          json_attribute name, *args
+        end
 
       end
 

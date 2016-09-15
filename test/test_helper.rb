@@ -27,7 +27,7 @@ class ARDuck
     @attributes = HashWithIndifferentAccess.new
     unless attrs.nil?
       attrs.each { |key, value|
-        @attributes[key] = public_send("#{key}=", value)
+        @jattributes[key] = public_send("#{key}=", value)
       }
     end
     @_initialized = true
@@ -54,7 +54,7 @@ class ARDuck
   end
 
   def write_store_attribute(store, key, value)
-    #changed_attributes[key] = read_store_attribute(:data, key) if @_initialized
+    #changed_json_attributes[key] = read_store_json_attribute(:data, key) if @_initialized
     @attributes[key] = value
   end
 
@@ -71,17 +71,17 @@ end
 
 class EmbeddableA < ARDuck
   include ArDocStore::EmbeddableModel
-  attribute :name
+  json_attribute :name
 end
 
 class EmbeddableB < EmbeddableA
-  attribute :gender
+  json_attribute :gender
 end
 
 class Dimensions
   include ArDocStore::EmbeddableModel
-  attribute :length, :float
-  attribute :width,  :float
+  json_attribute :length, :float
+  json_attribute :width,  :float
 end
 
 class Route
@@ -96,11 +96,11 @@ end
 class Door
   include ArDocStore::EmbeddableModel
   enumerates :door_type, multiple: true, values: %w{single double french sliding push pull}
-  attribute :open_handle,  as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
-  attribute :close_handle, as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
-  attribute :clear_distance, as: :integer
-  attribute :opening_force, as: :integer
-  attribute :clear_space, as: :integer
+  json_attribute :open_handle,  as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
+  json_attribute :close_handle, as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
+  json_attribute :clear_distance, as: :integer
+  json_attribute :opening_force, as: :integer
+  json_attribute :clear_space, as: :integer
 end
 
 class Entrance
@@ -116,8 +116,8 @@ class Restroom
 
   enumerates :restroom_type, values: %w{single double dirty nasty clean}
 
-  attribute :is_restroom_provided, as: :boolean
-  attribute :is_signage_clear, as: :boolean
+  json_attribute :is_restroom_provided, as: :boolean
+  json_attribute :is_signage_clear, as: :boolean
 
   embeds_one :stall_area_dimensions, class_name: 'Dimensions'
   embeds_one :sink_area_dimensions, class_name: 'Dimensions'
@@ -128,16 +128,16 @@ end
 
 class Building < ActiveRecord::Base
   include ArDocStore::Model
-  attribute :name, :string
-  attribute :comments, as: :string
-  attribute :finished, :boolean
-  attribute :stories, as: :integer
-  attribute :height, as: :float
-  attribute :architects, as: :array
-  attribute :construction, as: :enumeration, values: %w{concrete wood brick plaster steel}
-  attribute :multiconstruction, as: :enumeration, values: %w{concrete wood brick plaster steel}, multiple: true
-  attribute :strict_enumeration, as: :enumeration, values: %w{happy sad glad bad}, strict: true
-  attribute :strict_multi_enumeration, as: :enumeration, values: %w{happy sad glad bad}, multiple: true, strict: true
+  json_attribute :name, :string
+  json_attribute :comments, as: :string
+  json_attribute :finished, :boolean
+  json_attribute :stories, as: :integer
+  json_attribute :height, as: :float
+  json_attribute :architects, as: :array
+  json_attribute :construction, as: :enumeration, values: %w{concrete wood brick plaster steel}
+  json_attribute :multiconstruction, as: :enumeration, values: %w{concrete wood brick plaster steel}, multiple: true
+  json_attribute :strict_enumeration, as: :enumeration, values: %w{happy sad glad bad}, strict: true
+  json_attribute :strict_multi_enumeration, as: :enumeration, values: %w{happy sad glad bad}, multiple: true, strict: true
   embeds_many :entrances
   embeds_many :restrooms
 end

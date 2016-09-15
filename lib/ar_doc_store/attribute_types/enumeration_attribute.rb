@@ -2,7 +2,7 @@ module ArDocStore
   module AttributeTypes
 
     class EnumerationAttribute < BaseAttribute
-      
+
       def build
         key = attribute.to_sym
         dictionary = options[:values]
@@ -10,9 +10,9 @@ module ArDocStore
         strict = options[:strict]
         default_value = default
         model.class_eval do
-          
+
           if multiple
-            attribute key, as: :array, default: default_value
+            json_attribute key, as: :array, default: default_value
             if strict
               define_method "validate_#{key}" do
                 value = public_send(key)
@@ -21,7 +21,7 @@ module ArDocStore
               validate "validate_#{key}".to_sym
             end
           else
-            attribute key, as: :string, default: default_value
+            json_attribute key, as: :string, default: default_value
             if strict
               validates_inclusion_of key, in: dictionary, allow_blank: true
             end
