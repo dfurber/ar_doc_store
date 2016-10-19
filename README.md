@@ -114,11 +114,7 @@ class Door
   enumerates :door_type,
              multiple: true,
              values: %w{single double french sliding push pull}
-<<<<<<< HEAD
   json_attribute :open_handle,  
-=======
-  attribute :open_handle,
->>>>>>> 086aec86b93d270d1b6b829ff1356752bba9bed5
             as: :enumeration,
             multiple: true,
             values: %w{push pull plate knob handle}
