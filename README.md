@@ -114,7 +114,11 @@ class Door
   enumerates :door_type,
              multiple: true,
              values: %w{single double french sliding push pull}
+<<<<<<< HEAD
   json_attribute :open_handle,  
+=======
+  attribute :open_handle,
+>>>>>>> 086aec86b93d270d1b6b829ff1356752bba9bed5
             as: :enumeration,
             multiple: true,
             values: %w{push pull plate knob handle}
@@ -153,11 +157,11 @@ We probably have a form for the building, so here goes:
 ```ruby
 # in the controller:
 def new
-	@building = Building.new
+  @building = Building.new
 end
 
 def resource_params
-	params.require(:building).permit :name, :height, door_attributes: [:door_type]
+  params.require(:building).permit :name, :height, door_attributes: [:door_type]
 end
 
 # in the view, with a bonus plug for Slim templates:
@@ -205,10 +209,12 @@ Building.ransack name_cont: 'tall', height_lteq: 20
 
 ### Custom attribute types
 
-ArDocStore comes with several basic attribute types: array, boolean, enumeration, float, integer, and string. The implementation and extension points are inspired by SimpleForm. You can either create a new attribute type or overwrite an existing one. Forewarned is forestalled, maybe: as with SimpleForm, the custom input system is way easier to use if you were the one who built it, and it's still a little raw. Let's start with the implementation of :integer :
+ArDocStore comes with several basic attribute types: array, boolean, enumeration, float, integer, and string. The implementation and extension points are inspired by SimpleForm. You can either create a new attribute type or overwrite an existing one. Forewarned is forestalled, maybe: as with SimpleForm, the custom input system is way easier to use if you were the one who built it, and it's still a little raw.
+
+All attributes inherit from `AttributeTypes::BaseAttribute` and custom attributes are implemented by overriding that class's methods. Let's start with the implementation of `:integer` :
 
 ```ruby
-class IntegerAttribute < Base
+class IntegerAttribute < ArDocStore::AttributeTypes::BaseAttribute
   def conversion
     :to_i
   end
@@ -216,15 +222,20 @@ class IntegerAttribute < Base
   def predicate
     'int'
   end
+
+  def type
+    :number
+  end
 end
+
 ```
 
-Note that the data is getting put into a JSON column, so we want to make sure we get it out in the form that we want it. So the conversion method makes sure that it doesn't go in a integer and come back as a string. The predicate method tells postgres (via the ransacker) how to cast the JSON for searching.
+The data is put into a JSON column, so we want to make sure we serialize it correctly. The `conversion` method is a symbol or a string. It is called by the `dump` and `load` (in `BaseAttribute`) methods and is sent to the data when it is written and read. This makes sure that the data doesn't go in a integer and come back as a string. The `predicate` method tells Postgres (via the ransacker) how to cast the JSON for searching.
 
-Not all attribute types are that simple. Sometimes we have to put all the juice in the build method, and take care to define the getter and setter ourselves. In this example, we want to replace the boolean attribute with a similar boolean that can do Yes, No, and N/A, where N/A isn't simply nil but something the user has to choose. Here goes:
+Not all attribute types are that simple. Sometimes we have to put all the juice in the `build` method, and take care to define the getter and setter ourselves. In this example, we want to replace the boolean attribute with a similar boolean that can do Yes, No, and N/A, where N/A isn't simply nil but something the user has to choose. Here goes:
 
 ```ruby
-class BooleanAttribute < ArDocStore::AttributeTypes::Base
+class BooleanAttribute < ArDocStore::AttributeTypes::BaseAttribute
   def build
     key = attribute.to_sym
     model.class_eval do
@@ -257,6 +268,26 @@ class BooleanInput < SimpleForm::Inputs::CollectionRadioButtonsInput
     :radio_buttons
   end
 
+end
+```
+
+#### What if I need different conversions for reading and writing?
+
+The `:datetime` attribute requires the data be cast to a string when written, but cast to a `Time` object when read. This overrides the `dump` and `load` methods instead. Here is the implementation:
+
+```ruby
+class DatetimeAttribute < ArDocStore::AttributeTypes::BaseAttribute
+  def type
+    :datetime
+  end
+
+  def dump
+    :to_time
+  end
+
+  def load
+    :to_s
+  end
 end
 ```
 

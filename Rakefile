@@ -16,6 +16,9 @@ namespace :test do
       create_table :buildings, force: true do |t|
         t.jsonb :data
       end
+      create_table :purchase_orders, force: true do |t|
+        t.jsonb :data
+      end
     end
   end
 end

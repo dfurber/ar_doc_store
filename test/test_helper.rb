@@ -141,3 +141,10 @@ class Building < ActiveRecord::Base
   embeds_many :entrances
   embeds_many :restrooms
 end
+
+class PurchaseOrder < ActiveRecord::Base
+  include ArDocStore::Model
+  attribute :name, :string
+  attribute :price, :float
+  attribute :approved_at, :datetime
+end
