@@ -81,8 +81,8 @@ module ArDocStore
       #:nodoc:
       def add_ransacker(key, predicate = nil)
         return unless respond_to?(:ransacker)
-        ransacker key do
-          sql = "(data->>'#{key}')"
+        ransacker key do |parent|
+          sql = "(#{parent.table[:data]}->>'#{key}')"
           if predicate
             sql = "#{sql}::#{predicate}"
           end
