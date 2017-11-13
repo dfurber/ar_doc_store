@@ -100,8 +100,8 @@ module ArDocStore
 
       def create_embeds_many_validation(assn_name)
         model.class_eval do
-          validate_method = "validate_embedded_record_for_#{assn_name}"
-          define_method validate_method.to_s, -> { validate_embeds_many assn_name }
+          validate_method = "validate_embedded_record_for_#{assn_name}".to_sym
+          define_method validate_method, -> { validate_embeds_many assn_name }
           validate validate_method
         end
       end
