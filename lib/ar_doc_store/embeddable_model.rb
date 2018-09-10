@@ -67,7 +67,7 @@ module ArDocStore
       end
 
       def persisted?
-        false
+        !!read_store_attribute(nil, :id)
       end
 
       def inspect
@@ -82,8 +82,11 @@ module ArDocStore
         if @_initialized
           old_value = attributes[attribute]
           if attribute.to_s != 'id' && value != old_value
-            public_send :"#{attribute}_will_change!"
-            parent.data_will_change! if parent
+            set_attribute_was(attribute, value)
+            mutations_from_database.force_change(attribute)
+            if parent
+              parent.public_send("#{parent.json_column}_will_change!")
+            end
           end
 
         end

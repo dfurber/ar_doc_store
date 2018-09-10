@@ -118,6 +118,7 @@ module ArDocStore
           if value.key?(:id)
             process_existing_model(value)
           else
+            next if values.all?(&:nil?)
             add(value)
           end
         }
