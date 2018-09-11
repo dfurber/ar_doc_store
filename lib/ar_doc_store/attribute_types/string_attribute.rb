@@ -1,17 +1,13 @@
 module ArDocStore
   module AttributeTypes
-    
     class StringAttribute < BaseAttribute
-      def conversion
-        :to_s
-      end
-
       def predicate
         'text'
       end
 
+      def attribute_type
+        ActiveModel::Type::String
+      end
     end
-
   end
 end
-

@@ -19,5 +19,11 @@ class EmbeddedModelAttributeTest < MiniTest::Test
     assert_equal %w{sliding push}, door.door_type
   end
 
+  def test_validation_of_embedded_model
+    door = Door.new
+    door.clear_space = 6
+    assert door.valid?
+  end
+
 end
 

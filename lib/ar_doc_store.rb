@@ -14,10 +14,10 @@ module ArDocStore
     autoload :FloatAttribute, "ar_doc_store/attribute_types/float_attribute"
     autoload :IntegerAttribute, "ar_doc_store/attribute_types/integer_attribute"
     autoload :StringAttribute, "ar_doc_store/attribute_types/string_attribute"
-    autoload :UuidAttribute, "ar_doc_store/attribute_types/uuid_attribute"
     autoload :EmbedsOneAttribute, "ar_doc_store/attribute_types/embeds_one_attribute"
     autoload :EmbedsManyAttribute, "ar_doc_store/attribute_types/embeds_many_attribute"
     autoload :DatetimeAttribute, "ar_doc_store/attribute_types/datetime_attribute"
+    autoload :DateAttribute, "ar_doc_store/attribute_types/date_attribute"
   end
 
   @mappings = Hash.new
@@ -27,8 +27,8 @@ module ArDocStore
   @mappings[:float]       = 'ArDocStore::AttributeTypes::FloatAttribute'
   @mappings[:integer]     = 'ArDocStore::AttributeTypes::IntegerAttribute'
   @mappings[:string]      = 'ArDocStore::AttributeTypes::StringAttribute'
-  @mappings[:uuid]        = 'ArDocStore::AttributeTypes::UuidAttribute'
   @mappings[:datetime]    = 'ArDocStore::AttributeTypes::DatetimeAttribute'
+  @mappings[:date]    = 'ArDocStore::AttributeTypes::DateAttribute'
 
   def self.mappings
     @mappings
@@ -46,14 +46,6 @@ module ArDocStore
       return false
     else
       return nil
-    end
-  end
-
-  def self.clobber_attribute_method!
-    ArDocStore::Storage::ClassMethods.module_eval do
-      def attribute(*args)
-        json_attribute *args
-      end
     end
   end
 end

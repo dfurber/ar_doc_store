@@ -21,5 +21,9 @@ class ArrayAttributeTest < MiniTest::Test
     assert_equal true, b.architects?
   end
 
-  # Type conversion doesn't make sense here...
+  def test_persistence
+    b = Building.new name: 'Test', stories: 5, architects: %W{Bob John}
+    assert b.save
+    assert_equal b.architects, Building.find(b.id).architects
+  end
 end

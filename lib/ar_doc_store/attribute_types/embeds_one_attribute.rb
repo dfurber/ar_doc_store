@@ -1,6 +1,42 @@
 module ArDocStore
   module AttributeTypes
 
+    class EmbedOneType < ActiveModel::Type::Value
+      attr_accessor :class_name
+      def initialize(class_name)
+        @class_name = class_name
+      end
+      def cast(value)
+        if value.nil?
+          value
+        elsif value.kind_of?(class_name)
+          value
+        elsif value.respond_to?(:to_hash)
+          class_name.new value
+        else
+          nil
+        end
+      end
+
+      def serialize(value)
+        if value.nil?
+          nil
+        elsif value.kind_of?(class_name)
+          value.serializable_hash
+        else
+          cast(value).serializable_hash
+        end
+      end
+
+      def deserialize(value)
+        cast(value)
+      end
+
+      def changed_in_place?(raw_old_value, new_value)
+        serialize(new_value) != raw_old_value
+      end
+    end
+
     class EmbedsOneAttribute < BaseAttribute
       attr_reader :class_name
       def build
@@ -13,23 +49,14 @@ module ArDocStore
 
       def create_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{attribute}
-          @#{attribute} || begin
-            item = read_store_attribute json_column, :#{attribute}
-            item = #{class_name}.build(item) unless item.is_a?(#{class_name})
-            @#{attribute} = item
-          end
-        end
-
+        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedOneType.new(#{@class_name})
         def #{attribute}=(value)
-          if value == '' || !value
-            value = nil
-          elsif value.is_a?(#{class_name})
-            value = value.attributes
-          end
-          value = #{class_name}.build value
-          @#{attribute} = value
-          write_store_attribute json_column, :#{attribute}, value
+          value = nil if value == '' || value == ['']
+          write_attribute :#{attribute}, value
+          #{attribute}.parent ||= self
+          #{attribute}.embedded_as ||= :#{attribute}
+          write_store_attribute json_column, :#{attribute}, #{attribute}
+          #{attribute}          
         end
         CODE
       end
@@ -38,6 +65,8 @@ module ArDocStore
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def build_#{attribute}(attributes=nil)
           self.#{attribute} = #{class_name}.build(attributes)
+          #{attribute}.parent ||= self
+          #{attribute}
         end
         def ensure_#{attribute}
           #{attribute} || build_#{attribute}
@@ -54,6 +83,8 @@ module ArDocStore
           else
             item = ensure_#{attribute}
             item.attributes = values
+            item.parent ||= self
+            item
           end
         end
         CODE

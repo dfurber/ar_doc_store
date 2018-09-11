@@ -5,12 +5,8 @@ module ArDocStore
         :datetime
       end
 
-      def load
-        :to_time
-      end
-
-      def dump
-        :to_s
+      def attribute_type
+        ActiveRecord::Type::DateTime
       end
     end
   end

@@ -32,5 +32,11 @@ class BooleanAttributeTest < MiniTest::Test
     b.finished = '1'
     assert_equal true, b.finished
   end
-  
+
+  def test_persistence
+    b = Building.new name: 'Test', finished: true
+    assert b.save
+    assert_equal true, Building.find(b.id).finished?
+  end
+
 end

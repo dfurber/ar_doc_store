@@ -59,4 +59,9 @@ class EnumerationAttributeTest < MiniTest::Test
     assert_equal true, b.strict_multi_enumeration?
   end
 
+  def test_persistence
+    b = Building.new name: 'Test', strict_multi_enumeration: %w{glad bad}
+    assert b.save
+    assert_equal %w{glad bad}, Building.find(b.id).strict_multi_enumeration
+  end
 end

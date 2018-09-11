@@ -9,7 +9,7 @@ module ArDocStore
 
       def initialize(model, attribute, options)
         @model, @attribute, @options = model, attribute, options
-        @model.virtual_attributes[attribute] = self
+        @model.json_attributes[attribute] = self
         @default = options.delete(:default)
       end
 
@@ -19,42 +19,29 @@ module ArDocStore
 
       #:nodoc:
       def store_attribute
-        attribute = @attribute
+        attribute_name = @attribute
         predicate_method = predicate
-        default_value = default
-        dump_method = dump
-        load_method = load
+        attribute_type = self.attribute_type
+        options = attribute_options
+        options.merge!(default: default) if default.present?
         model.class_eval do
-          add_ransacker(attribute, predicate_method)
-          define_method attribute.to_sym, -> {
-            value = read_store_attribute(json_column, attribute)
-            if value
-              value.public_send(load_method)
-            elsif default_value
-              write_default_store_attribute(attribute, default_value)
-              default_value
-            end
-          }
-          define_method "#{attribute}=".to_sym, -> (value) {
-            if value == '' || value.nil?
-              write_store_attribute json_column, attribute, nil
-            else
-              write_store_attribute(json_column, attribute, value.public_send(dump_method))
-            end
+          add_ransacker(attribute_name, predicate_method)
+          attribute attribute_name, attribute_type.new, **options
+          define_method "#{attribute_name}=".to_sym, -> (value) {
+            value = nil if value == '' || value == ['']
+            new_value = send :attribute=, attribute_name, value
+            write_store_attribute(json_column, attribute_name, new_value)
+            new_value
           }
         end
       end
 
-      def conversion
-        :to_s
+      def attribute_type
+        ActiveModel::Type::Value
       end
 
-      def dump
-        conversion
-      end
-
-      def load
-        conversion
+      def attribute_options
+        {}
       end
     end
   end

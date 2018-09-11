@@ -1,23 +1,42 @@
 module ArDocStore
-
   class EmbeddedCollection < Array
-    attr_accessor :parent
+    attr_accessor :parent, :embedded_as
+    def save
+      parent.public_send("#{embedded_as}=", as_json)
+    end
+    def inspect
+      "ArDocStore::EmbeddedCollection - #{as_json.inspect}"
+    end
   end
 
   module AttributeTypes
+    class EmbedManyType < ActiveModel::Type::Value
+      attr_accessor :class_name
+      def initialize(class_name)
+        @class_name = class_name
+      end
+      def cast(values)
+        collection = EmbeddedCollection.new
+        values && values.each do |value|
+          collection << if value.is_a?(class_name)
+                          value
+                        else
+                          class_name.new(value)
+                        end
+        end
+        collection
+      end
+    end
 
     class EmbedsManyAttribute < BaseAttribute
-
       def build
-        assn_name = attribute.to_sym
-        class_name = options[:class_name] || attribute.to_s.classify
-        model.store_accessor model.json_column, assn_name
-        create_reader_for assn_name, class_name
-        create_writer_for assn_name, class_name
-        create_build_method_for assn_name, class_name
-        create_ensure_method_for assn_name
-        create_embeds_many_attributes_method(class_name, assn_name)
-        create_embeds_many_validation(assn_name)
+        @attribute = attribute.to_sym
+        @class_name = options[:class_name] || attribute.to_s.classify
+        create_accessors
+        create_build_method
+        create_ensure_method
+        create_embeds_many_attributes
+        create_embeds_many_validation
       end
 
       private
@@ -28,64 +47,69 @@ module ArDocStore
         end
       end
 
-      def create_reader_for(assn_name, class_name)
-        add_method assn_name.to_sym, -> {
-          ivar = "@#{assn_name}"
-          instance_variable_get(ivar) || begin
-            my_class_name = class_name.constantize
-            items = read_store_attribute(json_column, assn_name)
-            if items.is_a?(Array) || items.is_a?(ArDocStore::EmbeddedCollection)
-              items = ArDocStore::EmbeddedCollection.new items.map { |item| item.is_a?(my_class_name) ? item : my_class_name.build(item) }
-            else
-              items ||= ArDocStore::EmbeddedCollection.new
-            end
-            instance_variable_set ivar, (items)
-            items.parent = self
-            items.map {|item| item.parent = self }
-            items
-          end
-        }
-      end
-      def create_writer_for(assn_name, class_name)
-        add_method "#{assn_name}=".to_sym, -> (values) {
-          if values && values.respond_to?(:map)
-            items = ArDocStore::EmbeddedCollection.new values.map { |item|
-              my_class_name = class_name.constantize
-              item = item.is_a?(my_class_name) ? item : my_class_name.new(item)
-              item.id
-              item.parent = self
-              item
-            }
+      def create_accessors
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedManyType.new(#{@class_name})
+        def #{attribute}
+          value = send :attribute, :#{attribute}
+          if value && !value.is_a?(ArDocStore::EmbeddedCollection)
+            value = ArDocStore::EmbeddedCollection.new value
           else
-            items = []
+            value ||= ArDocStore::EmbeddedCollection.new
           end
+          value.parent = self
+          value.embedded_as = :#{attribute}
+          value.each do |item|
+            item.parent = value
+          end
+          value
+        end
+        def #{attribute}=(value)
+          value = nil if value == '' || value == ['']
+          send :attribute=, :#{attribute}, value
+          new_value = send :attribute, :#{attribute}
+          new_value.parent = self
+          new_value.embedded_as = :#{attribute}
+          new_value.each do |item|
+            item.parent = new_value
+          end
+          write_store_attribute json_column, :#{attribute}, new_value
+          new_value          
+        end
+        CODE
+      end
+
+      def create_build_method
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+        def build_#{attribute.to_s.singularize}(attributes = {})
+          items = #{attribute} || ArDocStore::EmbeddedCollection.new
+          items.embedded_as = :#{attribute}
           items.parent = self
-          instance_variable_set "@#{assn_name}", write_store_attribute(json_column, assn_name, items)
-        }
-      end
-
-      def create_build_method_for(assn_name, class_name)
-        add_method "build_#{assn_name.to_s.singularize}", -> (attributes=nil) {
-          assns = self.public_send assn_name
-          item = class_name.constantize.build attributes
-          item.parent = self
-          assns << item
-          public_send "#{assn_name}=", assns
+          item = #{@class_name}.new attributes
+          item.parent = #{attribute}
+          items << item
+          self.#{attribute} = items
           item
-        }
+        end
+        CODE
       end
 
-      def create_ensure_method_for(assn_name)
-        method = -> { public_send "build_#{assn_name.to_s.singularize}" if self.public_send(assn_name).blank? }
-        add_method "ensure_#{assn_name.to_s.singularize}", method
-        add_method "ensure_#{assn_name}", method
+      def create_ensure_method
+        attr_singular = attribute.to_s.singularize
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+        def ensure_#{attribute}(attributes = nil)
+          #{attribute}.first || build_#{attr_singular}(attributes)
+        end
+        def ensure_#{attr_singular}(attributes = nil)
+          #{attribute}.first || build_#{attr_singular}(attributes)
+        end
+        CODE
       end
 
-      def create_embeds_many_attributes_method(class_name, assn_name)
-        add_method "#{assn_name}_attributes=", -> (values) {
+      def create_embeds_many_attributes
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+        def #{attribute}_attributes=(values)
           return if values.blank?
-          # if it's a single item then wrap it in an array but how to tell?
-
           if values.respond_to?(:each)
             if values.respond_to?(:values)
               values = values.values
@@ -93,17 +117,18 @@ module ArDocStore
           else
             values = [values]
           end
-          models = public_send assn_name
-          public_send "#{assn_name}=", AssignEmbedsManyAttributes.new(self, class_name, assn_name, models, values).models
-        }
+          self.#{attribute} = AssignEmbedsManyAttributes.new(self, #{@class_name}, :#{attribute}, #{attribute}, values).models
+        end
+        CODE
       end
 
-      def create_embeds_many_validation(assn_name)
-        model.class_eval do
-          validate_method = "validate_embedded_record_for_#{assn_name}".to_sym
-          define_method validate_method, -> { validate_embeds_many assn_name }
-          validate validate_method
-        end
+      def create_embeds_many_validation
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+          def validate_embedded_record_for_#{attribute}
+            validate_embeds_many :#{attribute}
+          end
+          validate :validate_embedded_record_for_#{attribute}
+        CODE
       end
 
 
@@ -113,6 +138,9 @@ module ArDocStore
       attr_reader :models, :assn_name, :parent, :class_name
       def initialize(parent, class_name, assn_name, models, values)
         @parent, @class_name, @assn_name, @models, @values = parent, class_name, assn_name, models, values
+        @models ||= ArDocStore::EmbeddedCollection.new
+        # @models.parent = parent
+        # @models.embedded_as = assn_name
         values.each { |value|
           value = value.symbolize_keys
           if value.key?(:id)
@@ -140,7 +168,7 @@ module ArDocStore
       end
 
       def add(value)
-        models << class_name.constantize.new(value)
+        models << class_name.new(value)
       end
 
       def destroy(model, value)

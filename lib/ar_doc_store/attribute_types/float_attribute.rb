@@ -1,11 +1,6 @@
 module ArDocStore
   module AttributeTypes
-
     class FloatAttribute < BaseAttribute
-      def conversion
-        :to_f
-      end
-
       def predicate
         'float'
       end
@@ -14,7 +9,9 @@ module ArDocStore
         :number
       end
 
+      def attribute_type
+        ActiveModel::Type::Float
+      end
     end
-
   end
 end

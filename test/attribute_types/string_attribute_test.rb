@@ -24,4 +24,10 @@ class StringAttributeTest < MiniTest::Test
     assert_equal '51', b.name
   end
 
+  def test_persistence
+    b = Building.new name: 'Test', stories: 5
+    assert b.save
+    assert_equal 'Test', Building.find(b.id).name
+  end
+
 end

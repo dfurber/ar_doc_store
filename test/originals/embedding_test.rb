@@ -69,12 +69,6 @@ class EmbeddingTest < MiniTest::Test
     assert !b.valid?
   end
 
-  def test_model_with_no_attributes
-    item = ThingWithEmptyModel.new
-    item.build_empty_model
-    assert item.empty_model.is_a?(EmptyModel)
-  end
-
   def test_model_subclassing
     assert_equal EmbeddableB.virtual_attributes.size, 3
   end

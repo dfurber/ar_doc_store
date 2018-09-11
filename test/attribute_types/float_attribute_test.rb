@@ -29,5 +29,10 @@ class FloatAttributeTest < MiniTest::Test
     b.height = '5.42'
     assert_equal 5.42, b.height
   end
-  
+
+  def test_persistence
+    b = Building.new name: 'Test', height: 87.4
+    assert b.save
+    assert_equal 87.4, Building.find(b.id).height
+  end
 end

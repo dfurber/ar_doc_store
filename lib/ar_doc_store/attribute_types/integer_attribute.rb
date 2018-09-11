@@ -1,11 +1,6 @@
 module ArDocStore
   module AttributeTypes
-
     class IntegerAttribute < BaseAttribute
-      def conversion
-        :to_i
-      end
-
       def predicate
         'int'
       end
@@ -14,7 +9,9 @@ module ArDocStore
         :number
       end
 
+      def attribute_type
+        ActiveModel::Type::Integer
+      end
     end
-
   end
 end

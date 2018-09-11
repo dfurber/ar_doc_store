@@ -1,8 +1,6 @@
 module ArDocStore
   module AttributeTypes
-
-    class ArrayAttribute < BaseAttribute
-
+    class DateAttribute < BaseAttribute
       def build
         super
         attribute_name = attribute
@@ -12,18 +10,12 @@ module ArDocStore
       end
 
       def type
-        :array
+        :date
       end
 
       def attribute_type
-        ActiveModel::Type::Value
+        ActiveRecord::Type::Date
       end
-
-      def attribute_options
-        { array: true }
-      end
-
     end
-
   end
 end
