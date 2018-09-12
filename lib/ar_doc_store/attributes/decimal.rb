@@ -1,8 +1,8 @@
 module ArDocStore
-  module AttributeTypes
-    class IntegerAttribute < BaseAttribute
+  module Attributes
+    class Decimal < Base
       def predicate
-        'int'
+        'number'
       end
 
       def type
@@ -10,7 +10,7 @@ module ArDocStore
       end
 
       def attribute_type
-        ActiveModel::Type::Integer
+        ActiveModel::Type::Decimal
       end
     end
   end

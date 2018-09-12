@@ -1,93 +1,11 @@
 module ArDocStore
-  class EmbeddedCollection < Array
-    attr_accessor :parent, :embedded_as
-    def save
-      parent.send :write_store_attribute, parent.json_column, embedded_as, as_json
-    end
-    def persist
-      each &:persist
-    end
-    def inspect
-      "ArDocStore::EmbeddedCollection - #{as_json.inspect}"
-    end
-  end
-
-  module AttributeTypes
-    class EmbedManyType < ActiveModel::Type::Value
-      attr_accessor :class_name
-
-      def initialize(class_name)
-        @class_name = class_name
-      end
-
-      def cast(values)
-        @class_name = @class_name.constantize if class_name.respond_to?(:constantize)
-        collection = EmbeddedCollection.new
-        values && values.each do |value|
-          collection << if value.nil?
-                          value
-                        elsif value.kind_of?(class_name)
-                          value
-                        elsif value.respond_to?(:to_hash)
-                          class_name.new value
-                        else
-                          nil
-                        end
-        end
-        collection
-      end
-
-      def serialize(values)
-        if values.nil?
-          nil
-        elsif values.respond_to?(:each)
-          values.map { |value|
-            if value.nil?
-              nil
-            elsif value.kind_of?(class_name)
-              value.serializable_hash
-            else
-              cast(value).serializable_hash
-            end
-          }.compact
-        end
-      end
-
-      def deserialize(value)
-        cast(value)
-      end
-
-      def changed_in_place?(raw_old_value, new_value)
-        serialize(new_value) != raw_old_value
-      end
-    end
-
-    class EmbedsManyAttribute < BaseAttribute
-      def store_attribute
-        @attribute = attribute.to_sym
-        @class_name = options[:class_name] || attribute.to_s.classify
-        create_accessors
-        create_build_method
-        create_ensure_method
-        create_embeds_many_attributes
-        create_embeds_many_validation
-      end
-
-      def embedded?
-        true
-      end
-
+  module Attributes
+    class EmbedsMany < EmbedsBase
       private
 
-      def add_method(method, block)
-        model.class_eval do
-          define_method method, block
-        end
-      end
-
-      def create_accessors
+      def store_attribute
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedManyType.new("#{@class_name}")
+        attribute :#{attribute}, ArDocStore::Types::EmbedsMany.new("#{@class_name}")
         def #{attribute}
           value = send :attribute, :#{attribute}
           if value && !value.is_a?(ArDocStore::EmbeddedCollection)
@@ -144,7 +62,7 @@ module ArDocStore
         CODE
       end
 
-      def create_embeds_many_attributes
+      def create_attributes_method
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{attribute}_attributes=(values)
           return if values.blank?
@@ -160,7 +78,7 @@ module ArDocStore
         CODE
       end
 
-      def create_embeds_many_validation
+      def create_validation
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
           def validate_embedded_record_for_#{attribute}
             validate_embeds_many :#{attribute}
@@ -168,8 +86,6 @@ module ArDocStore
           validate :validate_embedded_record_for_#{attribute}
         CODE
       end
-
-
     end
 
     class AssignEmbedsManyAttributes
@@ -223,7 +139,5 @@ module ArDocStore
         models.detect { |item| item.id == value[:id] }
       end
     end
-
-
   end
 end

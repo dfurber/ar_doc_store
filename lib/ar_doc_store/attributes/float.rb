@@ -1,6 +1,6 @@
 module ArDocStore
-  module AttributeTypes
-    class FloatAttribute < BaseAttribute
+  module Attributes
+    class Float < Base
       def predicate
         'float'
       end

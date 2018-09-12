@@ -1,6 +1,6 @@
 module ArDocStore
-  module AttributeTypes
-    class StringAttribute < BaseAttribute
+  module Attributes
+    class String < Base
       def predicate
         'text'
       end

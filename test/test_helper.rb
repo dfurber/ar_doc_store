@@ -22,21 +22,6 @@ end
 # require 'simplecov'
 # SimpleCov.start
 
-class EmbeddableA
-  include ArDocStore::EmbeddableModel
-  json_attribute :name
-end
-
-class EmbeddableB < EmbeddableA
-  json_attribute :gender
-end
-
-class Dimensions
-  include ArDocStore::EmbeddableModel
-  json_attribute :length, :float
-  json_attribute :width,  :float
-end
-
 class Route
   include ArDocStore::EmbeddableModel
   json_attribute :is_route_unobstructed, as: :boolean
@@ -83,6 +68,7 @@ class Building < ActiveRecord::Base
   json_attribute :strict_multi_enumeration, as: :enumeration, values: %w{happy sad glad bad}, multiple: true, strict: true
   json_attribute :inspected_at, as: :datetime
   json_attribute :finished_on, as: :date
+  json_attribute :cost, as: :decimal
   embeds_one :entrance
   embeds_one :main_entrance, class_name: 'Entrance'
   embeds_many :restrooms

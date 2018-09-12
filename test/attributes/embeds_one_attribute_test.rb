@@ -46,7 +46,6 @@ class EmbedsOneAttributeTest < MiniTest::Test
     assert b.entrance_changed?
     assert b.entrance.name_changed?
     assert_equal b.data['entrance']['name'], b.entrance.name
-    puts b.changes.inspect
     b.save
     c = Building.find(a.id)
     assert_equal b.data, c.data

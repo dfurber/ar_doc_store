@@ -1,7 +1,12 @@
 module ArDocStore
-  module AttributeTypes
-    class BaseAttribute
+  module Attributes
+    class Base
+      include CallbackSupport
+
       attr_accessor :conversion, :predicate, :options, :model, :attribute, :default
+
+      after_build :add_ransacker
+      after_build :define_query_method
 
       def self.build(model, attribute, options={})
         new(model, attribute, options).build
@@ -13,19 +18,19 @@ module ArDocStore
       end
 
       def build
-        store_attribute
+        run_callbacks :build do
+          store_attribute
+        end
         self
       end
 
       #:nodoc:
       def store_attribute
         attribute_name = @attribute
-        predicate_method = predicate
         attribute_type = self.attribute_type
         options = attribute_options
         options.merge!(default: default) if default.present?
         model.class_eval do
-          add_ransacker(attribute_name, predicate_method)
           attribute attribute_name, attribute_type.new, **options
           define_method "#{attribute_name}=".to_sym, -> (value) {
             value = nil if value == '' || value == ['']
@@ -49,6 +54,19 @@ module ArDocStore
         false
       end
 
+      def add_ransacker
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+          add_ransacker :#{attribute}, "#{predicate}"
+        CODE
+      end
+
+      def define_query_method
+        model.class_eval <<-CODE, __FILE__, __LINE__ + 1
+          def #{attribute}?
+            !!#{attribute}
+          end
+        CODE
+      end
     end
   end
 end

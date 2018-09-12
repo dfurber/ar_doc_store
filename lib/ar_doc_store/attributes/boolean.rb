@@ -1,6 +1,6 @@
 module ArDocStore
-  module AttributeTypes
-    class BooleanAttribute < BaseAttribute
+  module Attributes
+    class Boolean < Base
       def predicate
         'bool'
       end

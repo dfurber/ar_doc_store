@@ -3,32 +3,42 @@ require "ar_doc_store/storage"
 require "ar_doc_store/embedding"
 require "ar_doc_store/model"
 require "ar_doc_store/embeddable_model"
+require "ar_doc_store/embedded_collection"
 
 module ArDocStore
 
-  module AttributeTypes
-    autoload :BaseAttribute, "ar_doc_store/attribute_types/base_attribute"
-    autoload :ArrayAttribute, "ar_doc_store/attribute_types/array_attribute"
-    autoload :BooleanAttribute, "ar_doc_store/attribute_types/boolean_attribute"
-    autoload :EnumerationAttribute, "ar_doc_store/attribute_types/enumeration_attribute"
-    autoload :FloatAttribute, "ar_doc_store/attribute_types/float_attribute"
-    autoload :IntegerAttribute, "ar_doc_store/attribute_types/integer_attribute"
-    autoload :StringAttribute, "ar_doc_store/attribute_types/string_attribute"
-    autoload :EmbedsOneAttribute, "ar_doc_store/attribute_types/embeds_one_attribute"
-    autoload :EmbedsManyAttribute, "ar_doc_store/attribute_types/embeds_many_attribute"
-    autoload :DatetimeAttribute, "ar_doc_store/attribute_types/datetime_attribute"
-    autoload :DateAttribute, "ar_doc_store/attribute_types/date_attribute"
+  module Attributes
+    autoload :Base, "ar_doc_store/attributes/base"
+    autoload :Array, "ar_doc_store/attributes/array"
+    autoload :Boolean, "ar_doc_store/attributes/boolean"
+    autoload :Enumeration, "ar_doc_store/attributes/enumeration"
+    autoload :Float, "ar_doc_store/attributes/float"
+    autoload :Integer, "ar_doc_store/attributes/integer"
+    autoload :String, "ar_doc_store/attributes/string"
+    autoload :EmbedsOne, "ar_doc_store/attributes/embeds_one"
+    autoload :EmbedsMany, "ar_doc_store/attributes/embeds_many"
+    autoload :Datetime, "ar_doc_store/attributes/datetime"
+    autoload :Date, "ar_doc_store/attributes/date"
+    autoload :Decimal, "ar_doc_store/attributes/decimal"
+    autoload :CallbackSupport, "ar_doc_store/attributes/callback_support"
+    autoload :EmbedsBase, "ar_doc_store/attributes/embeds_base"
+  end
+
+  module Types
+    autoload :EmbedsOne, "ar_doc_store/types/embeds_one"
+    autoload :EmbedsMany, "ar_doc_store/types/embeds_many"
   end
 
   @mappings = Hash.new
-  @mappings[:array]       = 'ArDocStore::AttributeTypes::ArrayAttribute'
-  @mappings[:boolean]     = 'ArDocStore::AttributeTypes::BooleanAttribute'
-  @mappings[:enumeration] = 'ArDocStore::AttributeTypes::EnumerationAttribute'
-  @mappings[:float]       = 'ArDocStore::AttributeTypes::FloatAttribute'
-  @mappings[:integer]     = 'ArDocStore::AttributeTypes::IntegerAttribute'
-  @mappings[:string]      = 'ArDocStore::AttributeTypes::StringAttribute'
-  @mappings[:datetime]    = 'ArDocStore::AttributeTypes::DatetimeAttribute'
-  @mappings[:date]    = 'ArDocStore::AttributeTypes::DateAttribute'
+  @mappings[:array]       = 'ArDocStore::Attributes::Array'
+  @mappings[:boolean]     = 'ArDocStore::Attributes::Boolean'
+  @mappings[:enumeration] = 'ArDocStore::Attributes::Enumeration'
+  @mappings[:float]       = 'ArDocStore::Attributes::Float'
+  @mappings[:integer]     = 'ArDocStore::Attributes::Integer'
+  @mappings[:string]      = 'ArDocStore::Attributes::String'
+  @mappings[:datetime]    = 'ArDocStore::Attributes::Datetime'
+  @mappings[:date]        = 'ArDocStore::Attributes::Date'
+  @mappings[:decimal]     = 'ArDocStore::Attributes::Decimal'
 
   def self.mappings
     @mappings

@@ -1,8 +1,6 @@
 module ArDocStore
-  module AttributeTypes
-
-    class EnumerationAttribute < BaseAttribute
-
+  module Attributes
+    class Enumeration < Base
       def build
         key = attribute.to_sym
         dictionary = options[:values]
@@ -10,7 +8,6 @@ module ArDocStore
         strict = options[:strict]
         default_value = default
         model.class_eval do
-
           if multiple
             json_attribute key, as: :array, default: default_value
             if strict
@@ -35,7 +32,6 @@ module ArDocStore
       def type
         :string
       end
-
     end
   end
 end
