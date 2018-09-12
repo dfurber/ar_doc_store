@@ -2,9 +2,10 @@ module ArDocStore
   class EmbeddedCollection < Array
     attr_accessor :parent, :embedded_as
     def save
-      puts "Save called!"
       parent.send :write_store_attribute, parent.json_column, embedded_as, as_json
-      # parent.public_send("#{embedded_as}=", as_json)
+    end
+    def persist
+      each &:persist
     end
     def inspect
       "ArDocStore::EmbeddedCollection - #{as_json.inspect}"
@@ -20,6 +21,7 @@ module ArDocStore
       end
 
       def cast(values)
+        @class_name = @class_name.constantize if class_name.respond_to?(:constantize)
         collection = EmbeddedCollection.new
         values && values.each do |value|
           collection << if value.nil?
@@ -61,7 +63,7 @@ module ArDocStore
     end
 
     class EmbedsManyAttribute < BaseAttribute
-      def build
+      def store_attribute
         @attribute = attribute.to_sym
         @class_name = options[:class_name] || attribute.to_s.classify
         create_accessors
@@ -69,6 +71,10 @@ module ArDocStore
         create_ensure_method
         create_embeds_many_attributes
         create_embeds_many_validation
+      end
+
+      def embedded?
+        true
       end
 
       private
@@ -81,7 +87,7 @@ module ArDocStore
 
       def create_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedManyType.new(#{@class_name})
+        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedManyType.new("#{@class_name}")
         def #{attribute}
           value = send :attribute, :#{attribute}
           if value && !value.is_a?(ArDocStore::EmbeddedCollection)

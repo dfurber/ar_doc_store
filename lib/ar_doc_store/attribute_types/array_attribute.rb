@@ -3,7 +3,7 @@ module ArDocStore
 
     class ArrayAttribute < BaseAttribute
 
-      def build
+      def store_attribute
         super
         attribute_name = attribute
         model.class_eval do

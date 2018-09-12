@@ -10,10 +10,12 @@ module ArDocStore
       mod.send :include, ActiveModel::Serialization
       mod.send :include, ArDocStore::Storage
       mod.send :include, ArDocStore::Embedding
+      mod.send :include, ActiveSupport::Callbacks
       mod.send :include, InstanceMethods
       mod.send :extend,  ClassMethods
 
       mod.class_eval do
+        define_callbacks :persist
         attr_accessor :_destroy
         attr_accessor :parent
         attr_accessor :embedded_as
@@ -21,20 +23,48 @@ module ArDocStore
         class_attribute :json_attributes
         self.json_attributes = HashWithIndifferentAccess.new
 
-        json_attribute :id, :string, default: -> { SecureRandom.uuid }
+        json_attribute :id, :string #, default: -> { SecureRandom.uuid }
+
+        set_callback :persist, :before, :ensure_id
+        set_callback :persist, :after, :mark_embeds_as_persisted
       end
     end
 
     module InstanceMethods
       def initialize(values={})
         super(values)
-        values && values['id'] && values.keys.each do |key|
+        values && persisted? && values.keys.each do |key|
           mutations_from_database.forget_change(key)
         end
       end
 
+      def embedded?
+        true
+      end
+
+      def persist
+        puts "Persist!"
+        run_callbacks :persist
+      end
+
+      def ensure_id
+        self.id ||= SecureRandom.uuid
+      end
+
+      def mark_embeds_as_persisted
+        json_attributes.values.each do |value|
+          if value.respond_to?(:embedded?) && value.embedded? && respond_to?(value.attribute) && !public_send(value.attribute).nil?
+            public_send(value.attribute).persist
+          end
+        end
+      end
+
+      def new_record?
+        id.blank?
+      end
+
       def persisted?
-        !!read_store_attribute(nil, :id)
+        id.present?
       end
 
       def inspect
@@ -48,7 +78,6 @@ module ArDocStore
       def write_store_attribute(store, attribute, value)
         if parent
           if parent.is_a?(EmbeddedCollection)
-            puts "Calling save from #{attribute}: #{value}"
             parent.save
           else
             parent.send :write_store_attribute, store, embedded_as, as_json

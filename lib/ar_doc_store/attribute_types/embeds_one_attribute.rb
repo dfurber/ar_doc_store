@@ -9,6 +9,7 @@ module ArDocStore
       end
 
       def cast(value)
+        @class_name = @class_name.constantize if class_name.respond_to?(:constantize)
         if value.nil?
           value
         elsif value.kind_of?(class_name)
@@ -41,7 +42,8 @@ module ArDocStore
 
     class EmbedsOneAttribute < BaseAttribute
       attr_reader :class_name
-      def build
+
+      def store_attribute
         @class_name = options[:class_name] || attribute.to_s.classify
         create_accessors
         create_embed_one_attributes_method
@@ -49,9 +51,13 @@ module ArDocStore
         create_embeds_one_validation
       end
 
+      def embedded?
+        true
+      end
+
       def create_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
-        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedOneType.new(#{@class_name})
+        attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedOneType.new("#{@class_name}")
         def #{attribute}
           value = send :attribute, :#{attribute}
           value && value.parent = self 

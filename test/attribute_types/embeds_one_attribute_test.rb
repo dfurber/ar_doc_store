@@ -72,6 +72,7 @@ class EmbedsOneAttributeTest < MiniTest::Test
   def test_dirty_persisted
     a = Building.create name: 'Foo', entrance: { name: 'Foo' }
     b = Building.find a.id
+    assert b.entrance.id.present?
     assert !b.entrance.name_changed?
     b.entrance.name = 'Bar'
     assert b.entrance.name_changed?

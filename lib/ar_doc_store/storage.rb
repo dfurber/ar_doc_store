@@ -25,7 +25,8 @@ module ArDocStore
         type ||= options.delete(:as) || :string
         class_name = ArDocStore.mappings[type] || "ArDocStore::AttributeTypes::#{type.to_s.classify}Attribute"
         raise "Invalid attribute type: #{class_name}" unless const_defined?(class_name)
-        class_name.constantize.build self, name, options
+        json_attributes[name] = class_name.constantize.build self, name, options
+        define_method "#{name}?", -> { !!public_send(name) }
       end
 
       #:nodoc:

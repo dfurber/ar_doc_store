@@ -9,12 +9,12 @@ module ArDocStore
 
       def initialize(model, attribute, options)
         @model, @attribute, @options = model, attribute, options
-        @model.json_attributes[attribute] = self
         @default = options.delete(:default)
       end
 
       def build
         store_attribute
+        self
       end
 
       #:nodoc:
@@ -44,6 +44,11 @@ module ArDocStore
       def attribute_options
         {}
       end
+
+      def embedded?
+        false
+      end
+
     end
   end
 end
