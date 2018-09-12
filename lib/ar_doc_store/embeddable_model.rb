@@ -43,7 +43,6 @@ module ArDocStore
       end
 
       def persist
-        puts "Persist!"
         run_callbacks :persist
       end
 

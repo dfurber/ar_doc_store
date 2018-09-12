@@ -177,14 +177,12 @@ module ArDocStore
       def initialize(parent, class_name, assn_name, models, values)
         @parent, @class_name, @assn_name, @models, @values = parent, class_name, assn_name, models, values
         @models ||= ArDocStore::EmbeddedCollection.new
-        # @models.parent = parent
-        # @models.embedded_as = assn_name
         values.each { |value|
           value = value.symbolize_keys
           if value.key?(:id)
             process_existing_model(value)
           else
-            next if values.all?(&:nil?)
+            next if value.values.all? { |value| value.nil? || value == '' }
             add(value)
           end
         }

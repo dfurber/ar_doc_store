@@ -67,4 +67,12 @@ class EmbedsManyAttributeTest < MiniTest::Test
     assert b.restrooms.first.name_changed?
     assert_equal 'Foo', b.restrooms.first.name_was
   end
+
+  def test_rejects_all_blank
+    a = Building.new name: 'Foo'
+    a.restrooms_attributes = { 0 => { name: nil }}
+    a.save
+    b = Building.find a.id
+    assert_equal 0, b.restrooms.size
+  end
 end
