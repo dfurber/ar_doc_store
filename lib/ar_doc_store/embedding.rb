@@ -6,7 +6,6 @@ module ArDocStore
     end
 
     module ClassMethods
-
       def embeds_many(assn_name, *args)
         json_attribute assn_name, :embeds_many, *args
       end
@@ -14,7 +13,6 @@ module ArDocStore
       def embeds_one(assn_name, *args)
         json_attribute assn_name, :embeds_one, *args
       end
-
     end
 
 

@@ -2,7 +2,9 @@ module ArDocStore
   class EmbeddedCollection < Array
     attr_accessor :parent, :embedded_as
     def save
-      parent.public_send("#{embedded_as}=", as_json)
+      puts "Save called!"
+      parent.send :write_store_attribute, parent.json_column, embedded_as, as_json
+      # parent.public_send("#{embedded_as}=", as_json)
     end
     def inspect
       "ArDocStore::EmbeddedCollection - #{as_json.inspect}"
@@ -12,19 +14,49 @@ module ArDocStore
   module AttributeTypes
     class EmbedManyType < ActiveModel::Type::Value
       attr_accessor :class_name
+
       def initialize(class_name)
         @class_name = class_name
       end
+
       def cast(values)
         collection = EmbeddedCollection.new
         values && values.each do |value|
-          collection << if value.is_a?(class_name)
+          collection << if value.nil?
                           value
+                        elsif value.kind_of?(class_name)
+                          value
+                        elsif value.respond_to?(:to_hash)
+                          class_name.new value
                         else
-                          class_name.new(value)
+                          nil
                         end
         end
         collection
+      end
+
+      def serialize(values)
+        if values.nil?
+          nil
+        elsif values.respond_to?(:each)
+          values.map { |value|
+            if value.nil?
+              nil
+            elsif value.kind_of?(class_name)
+              value.serializable_hash
+            else
+              cast(value).serializable_hash
+            end
+          }.compact
+        end
+      end
+
+      def deserialize(value)
+        cast(value)
+      end
+
+      def changed_in_place?(raw_old_value, new_value)
+        serialize(new_value) != raw_old_value
       end
     end
 

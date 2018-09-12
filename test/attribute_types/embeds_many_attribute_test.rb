@@ -52,4 +52,19 @@ class EmbedsManyAttributeTest < MiniTest::Test
     a = Building.new name: 'Foo', restrooms_attributes: { 0 => { name: 'Bar' } }
     assert_equal 'Bar', a.restrooms.first.name
   end
+
+  def test_dirty_on_init
+    b = Building.new name: 'Foo', restrooms: [{ name: 'Foo' }]
+    assert b.restrooms.first.name_changed?
+  end
+
+  def test_dirty_persisted
+    a = Building.create name: 'Foo', restrooms: [{ name: 'Foo' }]
+    b = Building.find a.id
+    assert !b.restrooms.first.name_changed?
+    b.restrooms.first.name = 'Bar'
+    assert_equal 'Bar', b.restrooms.first.name
+    assert b.restrooms.first.name_changed?
+    assert_equal 'Foo', b.restrooms.first.name_was
+  end
 end

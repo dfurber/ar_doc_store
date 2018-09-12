@@ -46,12 +46,12 @@ module ArDocStore
       end
 
       def write_store_attribute(store, attribute, value)
-        write_attribute attribute, value
         if parent
           if parent.is_a?(EmbeddedCollection)
+            puts "Calling save from #{attribute}: #{value}"
             parent.save
           else
-            parent.public_send("#{embedded_as}=", as_json)
+            parent.send :write_store_attribute, store, embedded_as, as_json
           end
         end
         value
@@ -70,12 +70,14 @@ module ArDocStore
     end
 
     module ClassMethods
-      def build(attrs=HashWithIndifferentAccess.new)
-        if attrs.is_a?(self.class)
-          attrs
-        else
-          new(attrs)
-        end
+      def build(attrs=HashWithIndifferentAccess.new, parent = nil)
+        model = if attrs.is_a?(self.class)
+                  attrs
+                else
+                  new(attrs)
+                end
+        model.parent = parent
+        model
       end
     end
   end

@@ -8,65 +8,17 @@ module ArDocStore
       mod.class_attribute :json_attributes
       mod.json_attributes ||= HashWithIndifferentAccess.new
 
-      mod.send :include, InstanceMethods
+      # mod.send :include, InstanceMethods
       mod.send :extend, ClassMethods
     end
 
-    module InstanceMethods
-
-      def json_column
-        self.class.json_column
-      end
-
-      # def write_attribute(name, value)
-      #   if is_stored_attribute?(name)
-      #     write_store_attribute json_column, attribute_name_from_foreign_key(name), value
-      #   else
-      #     super
-      #   end
-      # end
-      #
-      # def read_attribute(name)
-      #   if is_stored_attribute?(name)
-      #     read_store_attribute json_column, attribute_name_from_foreign_key(name)
-      #   else
-      #     super
-      #   end
-      # end
-      #
-      # private
-      #
-      # def is_stored_attribute?(name)
-      #   name = name.to_sym
-      #   is_store_accessor_method?(name) || name =~ /data\-\>\>/
-      # end
-      #
-      # def is_store_accessor_method?(name)
-      #   name = name.to_sym
-      #   self.class.stored_attributes[json_column] && self.class.stored_attributes[json_column].include?(name)
-      # end
-      #
-      # def attribute_name_from_foreign_key(name)
-      #   is_store_accessor_method?(name) ? name : name.match(/\'(\w+)\'/)[0].gsub("'", '')
-      # end
-      #
-      # def clean_attribute_names_for_arel(attribute_names)
-      #   attribute_names.reject{|attribute_name| is_stored_attribute?(attribute_name)}
-      # end
-      #
-      # # Overridden otherwise insert and update queries get fooled into thinking that stored attributes are real columns.
-      # def arel_attributes_with_values_for_create(attribute_names) #:nodoc:
-      #   super clean_attribute_names_for_arel(attribute_names)
-      # end
-      #
-      # # Overridden otherwise insert and update queries get fooled into thinking that stored attributes are real columns.
-      # def arel_attributes_with_values_for_update(attribute_names) #:nodoc:
-      #   super clean_attribute_names_for_arel(attribute_names)
-      # end
-    end
-
+    # module InstanceMethods
+    #   def json_column
+    #     self.class.json_column
+    #   end
+    # end
+    #
     module ClassMethods
-
       def json_attribute(name, *args)
         type = args.shift if args.first.is_a?(Symbol)
         options = args.extract_options!

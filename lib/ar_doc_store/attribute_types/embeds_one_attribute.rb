@@ -3,9 +3,11 @@ module ArDocStore
 
     class EmbedOneType < ActiveModel::Type::Value
       attr_accessor :class_name
+
       def initialize(class_name)
         @class_name = class_name
       end
+
       def cast(value)
         if value.nil?
           value
@@ -50,11 +52,17 @@ module ArDocStore
       def create_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         attribute :#{attribute}, ArDocStore::AttributeTypes::EmbedOneType.new(#{@class_name})
+        def #{attribute}
+          value = send :attribute, :#{attribute}
+          value && value.parent = self 
+          value && value.embedded_as = :#{attribute}
+          value
+        end
         def #{attribute}=(value)
           value = nil if value == '' || value == ['']
           write_attribute :#{attribute}, value
-          #{attribute}.parent ||= self
-          #{attribute}.embedded_as ||= :#{attribute}
+          #{attribute}.parent = self
+          #{attribute}.embedded_as = :#{attribute}
           write_store_attribute json_column, :#{attribute}, #{attribute}
           #{attribute}          
         end
@@ -64,9 +72,7 @@ module ArDocStore
       def create_embeds_one_accessors
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def build_#{attribute}(attributes=nil)
-          self.#{attribute} = #{class_name}.build(attributes)
-          #{attribute}.parent ||= self
-          #{attribute}
+          self.#{attribute} = #{class_name}.build(attributes, self)
         end
         def ensure_#{attribute}
           #{attribute} || build_#{attribute}
@@ -83,7 +89,6 @@ module ArDocStore
           else
             item = ensure_#{attribute}
             item.attributes = values
-            item.parent ||= self
             item
           end
         end
