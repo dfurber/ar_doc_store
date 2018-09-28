@@ -15,8 +15,8 @@ module ArDocStore
         def #{attribute}=(value)
           value = nil if value == '' || value == ['']
           write_attribute :#{attribute}, value
-          #{attribute}.parent = self
-          #{attribute}.embedded_as = :#{attribute}
+          value && #{attribute}.parent = self
+          value && #{attribute}.embedded_as = :#{attribute}
           write_store_attribute json_column, :#{attribute}, #{attribute}
           #{attribute}          
         end
