@@ -9,7 +9,7 @@ ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'ar_doc
 
 require 'active_record/migration'
 
-ActiveRecord::Migration.execute "DROP TABLE IF EXISTS purchase_orders"
+ActiveRecord::Migration[4.2].execute "DROP TABLE IF EXISTS purchase_orders"
 ActiveRecord::Migration.execute "DROP TABLE IF EXISTS buildings"
 ActiveRecord::Migration.create_table :buildings do |t|
   t.jsonb :data
@@ -33,7 +33,7 @@ end
 
 class Door
   include ArDocStore::EmbeddableModel
-  enumerates :door_type, multiple: true, values: %w{single double french sliding push pull}
+  json_attribute :door_type, as: :enumeration, multiple: true, values: %w{single double french sliding push pull}
   json_attribute :open_handle,  as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
   json_attribute :close_handle, as: :enumeration, multiple: true, values: %w{push pull plate knob handle}
   json_attribute :clear_distance, as: :integer
@@ -69,6 +69,7 @@ class Building < ActiveRecord::Base
   json_attribute :inspected_at, as: :datetime
   json_attribute :finished_on, as: :date
   json_attribute :cost, as: :decimal
+  json_attribute :html
   embeds_one :entrance
   embeds_one :main_entrance, class_name: 'Entrance'
   embeds_many :restrooms

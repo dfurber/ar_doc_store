@@ -30,4 +30,9 @@ class StringAttributeTest < MiniTest::Test
     assert_equal 'Test', Building.find(b.id).name
   end
 
+  def test_html_attribute_name
+    t = Building.create html: 'foobar', name: 'Test', stories: 5
+    assert_equal t.html, 'foobar'
+  end
+
 end
