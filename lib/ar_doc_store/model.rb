@@ -10,7 +10,7 @@ module ArDocStore
 
     module InstanceMethods
       def assign_json_data
-        json_data = self[json_column]
+        json_data = respond_to?(json_column) && self[json_column]
         return if json_data.blank?
         json_attributes.keys.each do |key|
           next unless json_data.key?(key)
