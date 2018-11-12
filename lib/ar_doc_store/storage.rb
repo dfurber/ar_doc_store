@@ -24,8 +24,8 @@ module ArDocStore
       def add_ransacker(key, predicate = nil)
         return unless respond_to?(:ransacker)
         ransacker key do |parent|
-          sql = "(#{parent.table[:data]}->>'#{key}')"
-          if predicate
+          sql = "(#{parent.table[json_column].name}->>'#{key}')"
+          if predicate.present?
             sql = "#{sql}::#{predicate}"
           end
           Arel.sql(sql)
