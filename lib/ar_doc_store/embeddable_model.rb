@@ -71,7 +71,7 @@ module ArDocStore
       end
 
       def read_store_attribute(store, attr)
-        attributes[attr]
+        attributes[attr.to_s]
       end
 
       def write_store_attribute(store, attribute, value)

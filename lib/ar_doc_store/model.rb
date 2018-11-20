@@ -14,7 +14,7 @@ module ArDocStore
         return if json_data.blank?
         json_attributes.keys.each do |key|
           next unless json_data.key?(key)
-          send :attribute=, key, json_data[key] if self[key].respond_to?("#{key}=")
+          send :attribute=, key, json_data[key] if self.respond_to?("#{key}=")
           self[key].parent = self if self[key].respond_to?(:parent=)
           self[key].embedded_as = key if self[key].respond_to?(:embedded_as)
           mutations_from_database.forget_change(key) unless new_record?
