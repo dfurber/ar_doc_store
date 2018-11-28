@@ -22,8 +22,9 @@ module ArDocStore
       end
       def mark_embeds_as_persisted
         json_attributes.values.each do |value|
-          if value.respond_to?(:embedded?) && value.embedded? && respond_to?(value.attribute) && !public_send(value.attribute).nil?
-            public_send(value.attribute).persist
+          if value.respond_to?(:embedded?) && value.embedded? && respond_to?(value.attribute)
+            val = public_send(value.attribute)
+            val.persist if val && val.respond_to?(:persist)
           end
         end
       end
