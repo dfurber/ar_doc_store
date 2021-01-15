@@ -68,6 +68,7 @@ module ArDocStore
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{attribute}_attributes=(values)
           return if values.blank?
+
           if values.respond_to?(:each)
             if values.respond_to?(:values)
               values = values.values
@@ -113,6 +114,7 @@ module ArDocStore
 
       def process_existing_model(value)
         return false unless value.key?(:id)
+
         model = find_model_by_value(value)
         model && destroy_or_update(model, value) or add(value)
       end

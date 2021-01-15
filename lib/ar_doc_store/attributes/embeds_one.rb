@@ -64,8 +64,6 @@ module ArDocStore
           validate :validate_embedded_record_for_#{attribute}
         CODE
       end
-
     end
-
   end
 end

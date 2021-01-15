@@ -27,9 +27,9 @@ module ArDocStore
       end
 
       def serialize(values)
-        if values.nil?
-          nil
-        elsif values.respond_to?(:each)
+        return if values.nil?
+
+        if values.respond_to?(:each)
           values.map { |value|
             if value.nil?
               nil
