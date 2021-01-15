@@ -18,6 +18,7 @@ module ArDocStore
         type ||= options.delete(:as) || :string
         class_name = ArDocStore.mappings[type] || "ArDocStore::Attributes::#{type.to_s.classify}"
         raise "Invalid attribute type: #{class_name}" unless const_defined?(class_name)
+
         json_attributes[name] = class_name.constantize.build self, name, options
       end
 

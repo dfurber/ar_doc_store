@@ -36,10 +36,9 @@ module ArDocStore
           attribute attribute_name, attribute_type.new, **options
           define_method "#{attribute_name}=".to_sym, -> (value) {
             value = nil if value == '' || value == ['']
-            send :attribute=, attribute_name, value
-            new_value = send :attribute, attribute_name
+            write_attribute attribute_name, value
+            new_value = read_attribute attribute_name
             write_store_attribute(json_column, attribute_name, new_value)
-            new_value
           }
         end
       end
