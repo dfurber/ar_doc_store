@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ArDocStore
   module Attributes
     class EmbedsMany < EmbedsBase
@@ -30,7 +32,7 @@ module ArDocStore
             item.parent = new_value
           end
           write_store_attribute json_column, :#{attribute}, new_value
-          new_value          
+          new_value
         end
         CODE
       end

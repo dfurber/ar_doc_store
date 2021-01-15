@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ArDocStore
   module Attributes
     class EmbedsBase < Base
@@ -20,15 +22,19 @@ module ArDocStore
       end
 
       def create_build_method
+        # override in subclass
       end
 
       def create_ensure_method
+        # override in subclass
       end
 
       def create_attributes_method
+        # override in subclass
       end
 
       def create_validation
+        # override in subclass
       end
     end
   end

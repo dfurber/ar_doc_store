@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module ArDocStore
   module Storage
 
     def self.included(mod)
-
       mod.class_attribute :json_column
       mod.json_column ||= :data
       mod.class_attribute :json_attributes
@@ -23,6 +24,7 @@ module ArDocStore
       #:nodoc:
       def add_ransacker(key, predicate = nil)
         return unless respond_to?(:ransacker)
+
         ransacker key do |parent|
           sql = "(#{parent.table[json_column].name}->>'#{key}')"
           if predicate.present?

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ArDocStore
   module Attributes
     class EmbedsOne < EmbedsBase
@@ -8,7 +10,7 @@ module ArDocStore
         attribute :#{attribute}, ArDocStore::Types::EmbedsOne.new("#{@class_name}")
         def #{attribute}
           value = send :attribute, :#{attribute}
-          value && value.parent = self 
+          value && value.parent = self
           value && value.embedded_as = :#{attribute}
           value
         end
@@ -18,7 +20,7 @@ module ArDocStore
           value && #{attribute}.parent = self
           value && #{attribute}.embedded_as = :#{attribute}
           write_store_attribute json_column, :#{attribute}, #{attribute}
-          #{attribute}          
+          #{attribute}
         end
         CODE
       end

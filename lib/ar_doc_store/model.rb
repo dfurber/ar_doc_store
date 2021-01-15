@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ArDocStore
   module Model
     def self.included(mod)
@@ -12,6 +14,7 @@ module ArDocStore
       def assign_json_data
         json_data = respond_to?(json_column) && self[json_column]
         return if json_data.blank?
+
         json_attributes.keys.each do |key|
           next unless json_data.key?(key)
           send :attribute=, key, json_data[key] if self.respond_to?("#{key}=")

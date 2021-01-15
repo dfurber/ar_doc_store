@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ArDocStore
   class EmbeddedCollection < Array
     attr_accessor :parent, :embedded_as

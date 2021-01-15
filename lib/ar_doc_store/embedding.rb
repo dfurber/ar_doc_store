@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ArDocStore
   module Embedding
     def self.included(mod)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ar_doc_store/version"
 require "ar_doc_store/storage"
 require "ar_doc_store/embedding"
