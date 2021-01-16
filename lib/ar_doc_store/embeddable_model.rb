@@ -87,6 +87,14 @@ module ArDocStore
         value
       end
 
+      def read_attribute(attribute)
+        attributes[attribute.to_s]
+      end
+
+      def write_attribute(attribute, value)
+        attributes[attribute.to_s] = value
+      end
+
       def to_param
         id
       end

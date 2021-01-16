@@ -9,7 +9,7 @@ module ArDocStore
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         attribute :#{attribute}, ArDocStore::Types::EmbedsMany.new("#{@class_name}")
         def #{attribute}
-          value = send :attribute, :#{attribute}
+          value = read_attribute :#{attribute}
           if value && !value.is_a?(ArDocStore::EmbeddedCollection)
             value = ArDocStore::EmbeddedCollection.new value
           else
@@ -24,8 +24,8 @@ module ArDocStore
         end
         def #{attribute}=(value)
           value = nil if value == '' || value == ['']
-          send :attribute=, :#{attribute}, value
-          new_value = send :attribute, :#{attribute}
+          write_attribute :#{attribute}, value
+          new_value = read_attribute :#{attribute}
           new_value.parent = self
           new_value.embedded_as = :#{attribute}
           new_value.each do |item|

@@ -9,7 +9,7 @@ module ArDocStore
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1
         attribute :#{attribute}, ArDocStore::Types::EmbedsOne.new("#{@class_name}")
         def #{attribute}
-          value = send :attribute, :#{attribute}
+          value = read_attribute :#{attribute}
           value && value.parent = self
           value && value.embedded_as = :#{attribute}
           value
@@ -19,11 +19,11 @@ module ArDocStore
           write_attribute :#{attribute}, value
           value && #{attribute}.parent = self
           value && #{attribute}.embedded_as = :#{attribute}
-          write_store_attribute json_column, :#{attribute}, #{attribute}
           #{attribute}
         end
         CODE
       end
+      # TODO: figure out how to set parent on read and write
 
       def create_build_method
         model.class_eval <<-CODE, __FILE__, __LINE__ + 1

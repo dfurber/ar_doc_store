@@ -7,6 +7,7 @@ module ArDocStore
       mod.send :include, ArDocStore::Embedding
       mod.send :include, InstanceMethods
       mod.after_initialize :assign_json_data
+      mod.before_validation :save_json_data
       mod.before_save :mark_embeds_as_persisted
     end
 
@@ -23,6 +24,15 @@ module ArDocStore
           mutations_from_database.forget_change(key) unless new_record?
         end
       end
+
+      def save_json_data
+        json_attributes.each do |key, value|
+          next unless changes.key?(key)
+
+          write_store_attribute json_column, key, read_attribute(key)
+        end
+      end
+
       def mark_embeds_as_persisted
         json_attributes.values.each do |value|
           if value.respond_to?(:embedded?) && value.embedded? && respond_to?(value.attribute)
