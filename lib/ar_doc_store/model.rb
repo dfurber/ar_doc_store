@@ -14,9 +14,7 @@ module ArDocStore
     module InstanceMethods
       def assign_json_data
         json_data = respond_to?(json_column) && self[json_column]
-        return if json_data.blank?
-
-        json_attributes.keys.each do |key|
+        json_data && json_attributes.keys.each do |key|
           next unless json_data.key?(key)
           send :attribute=, key, json_data[key] if self.respond_to?("#{key}=")
           self[key].parent = self if self[key].respond_to?(:parent=)
@@ -27,9 +25,7 @@ module ArDocStore
 
       def save_json_data
         json_attributes.each do |key, value|
-          next unless changes.key?(key)
-
-          write_store_attribute json_column, key, read_attribute(key)
+          write_store_attribute(json_column, key, read_attribute(key)) if changes.key?(key)
         end
       end
 
