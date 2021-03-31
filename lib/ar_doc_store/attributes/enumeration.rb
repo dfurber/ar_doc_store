@@ -28,11 +28,20 @@ module ArDocStore
           define_singleton_method "#{key}_choices" do
             dictionary
           end
+          # if respond_to?(:ransacker)
+          #   ransacker key do |parent|
+          #     Arel.sql "#{parent.table[json_column].name}->'#{key}'"
+          #   end
+          # end
         end
       end
 
       def type
         :string
+      end
+
+      def add_ransacker
+        raise 'hello'
       end
     end
   end

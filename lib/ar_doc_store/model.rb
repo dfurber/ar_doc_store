@@ -33,7 +33,7 @@ module ArDocStore
       end
 
       def ensure_json_data_saved
-        save_json_data unless @json_data_saved
+        save_json_data unless defined?(@json_data_saved)
         @json_data_saved = nil
       end
 

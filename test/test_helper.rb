@@ -1,8 +1,10 @@
 gem 'activerecord'
 gem 'minitest'
+gem 'ransack'
 
 require 'minitest/autorun'
 require 'active_record'
+require 'ransack'
 
 require_relative './../lib/ar_doc_store'
 ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'ar_doc_store_test', username: 'postgres', password: 'postgres')
@@ -21,6 +23,50 @@ end
 
 # require 'simplecov'
 # SimpleCov.start
+
+# module Arel
+#   module Nodes
+#     class Contains < Arel::Nodes::InfixOperation
+#       def initialize(left, right)
+#         super(:'@>', left, right)
+#       end
+#     end
+#   end
+#
+#   module Visitors
+#     class PostgreSQL < Arel::Visitors::ToSql
+#       alias_method :visit_Arel_Nodes_Contains, :visit_Arel_Nodes_InfixOperation
+#     end
+#   end
+# end
+
+#
+# module ActiveRecord
+#   module QueryMethods
+#     def contains(predicates)
+#       predicates.map do |column, predicate|
+#         column = table[column]
+#         predicate = column.type_cast_for_database(predicate)
+#         predicate = Arel::Nodes.build_quoted(predicate)
+#
+#         where Arel::Nodes::Contains.new(column, predicate)
+#       end
+#     end
+#   end
+#
+#   module Querying
+#     delegate :contains, to: :all
+#   end
+# end
+
+# Ransack.configure do |config|
+#   # config.add_predicate 'jin', arel_predicate: 'contains', formatter: proc { |v| Arel.sql(v.to_json).gsub(/^"|"$/, "'") }
+#   config.add_predicate 'jin', arel_predicate: 'contains', formatter: proc { |v|
+#     value = Arel.sql(v.to_json).gsub(/^"|"$/, "'")
+#     puts value
+#     value
+#   }
+# end
 
 class Route
   include ArDocStore::EmbeddableModel
@@ -75,5 +121,13 @@ class Building < ActiveRecord::Base
   embeds_many :restrooms
 
   validates :stories, numericality: { allow_nil: true }
+
+  scope :multiconstruction_jin, -> (*values) {
+    where("data->'multiconstruction' @> ?", values.to_json)
+  }
+  def self.ransackable_scopes(_auth_object = nil)
+    %i[multiconstruction_jin]
+  end
+
 end
 
