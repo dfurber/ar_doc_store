@@ -93,6 +93,7 @@ module ArDocStore
 
     class AssignEmbedsManyAttributes
       attr_reader :models, :assn_name, :parent, :class_name
+
       def initialize(parent, class_name, assn_name, models, values)
         @parent, @class_name, @assn_name, @models, @values = parent, class_name, assn_name, models, values
         @models ||= ArDocStore::EmbeddedCollection.new
@@ -109,8 +110,8 @@ module ArDocStore
 
       private
 
-      attr_writer :models, :values
-      attr_reader :values, :assn_name
+      attr_accessor :values
+      attr_writer :models
 
       def process_existing_model(value)
         return false unless value.key?(:id)

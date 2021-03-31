@@ -8,6 +8,7 @@ module ArDocStore
       mod.send :include, InstanceMethods
       mod.after_initialize :assign_json_data
       mod.before_validation :save_json_data
+      mod.before_save :ensure_json_data_saved
       mod.before_save :mark_embeds_as_persisted
     end
 
@@ -28,6 +29,12 @@ module ArDocStore
         json_attributes.each do |key, value|
           write_store_attribute(json_column, key, read_attribute(key)) if changes.key?(key)
         end
+        @json_data_saved = true
+      end
+
+      def ensure_json_data_saved
+        save_json_data unless @json_data_saved
+        @json_data_saved = nil
       end
 
       def mark_embeds_as_persisted
