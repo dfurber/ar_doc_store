@@ -8,8 +8,10 @@ end
 
 namespace :test do
   task :prepare_ar_doc_store do
+    config = { adapter: 'postgresql', database: 'ar_doc_store_test', username: 'postgres', password: 'postgres' }
     require 'active_record'
-    ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'ar_doc_store_test', username: 'postgres', password: 'postgres')
+    ActiveRecord::Tasks::DatabaseTasks.create(config)
+    ActiveRecord::Base.establish_connection(config)
 
     ActiveRecord::Schema.define do
       self.verbose = false

@@ -22,8 +22,8 @@ module ArDocStore
         attr_accessor :parent
         attr_accessor :embedded_as
 
-        class_attribute :json_attributes
-        self.json_attributes = HashWithIndifferentAccess.new
+        # class_attribute :json_attributes
+        # self.json_attributes = HashWithIndifferentAccess.new
 
         json_attribute :id, :string #, default: -> { SecureRandom.uuid }
 
