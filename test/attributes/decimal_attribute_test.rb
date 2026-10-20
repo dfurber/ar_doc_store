@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class DecimalAttributeTest < MiniTest::Test
+class DecimalAttributeTest < Minitest::Test
   
   def test_attribute_on_model_init
     b = Building.new cost: 5.42

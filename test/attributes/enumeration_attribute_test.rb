@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class EnumerationAttributeTest < MiniTest::Test
+class EnumerationAttributeTest < Minitest::Test
   
   def test_simple_enumeration_attribute
     b = Building.new construction: 'wood'

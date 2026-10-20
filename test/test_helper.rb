@@ -1,24 +1,27 @@
 gem 'activerecord'
-gem 'minitest'
+gem 'minitest', '~> 5.0'
 gem 'ransack'
 
 require 'minitest/autorun'
+require 'logger'
 require 'active_record'
 require 'ransack'
 
 require_relative './../lib/ar_doc_store'
-ActiveRecord::Base.establish_connection(adapter: 'postgresql', database: 'ar_doc_store_test', username: 'postgres', password: 'postgres')
+ActiveRecord::Base.establish_connection(ENV.fetch('DATABASE_URL', 'postgresql://postgres:postgres@localhost/ar_doc_store_test'))
 
 require 'active_record/migration'
 
-ActiveRecord::Migration[4.2].execute "DROP TABLE IF EXISTS purchase_orders"
-ActiveRecord::Migration.execute "DROP TABLE IF EXISTS buildings"
-ActiveRecord::Migration.create_table :buildings do |t|
-  t.jsonb :data
-end
-ActiveRecord::Migration.create_table :purchase_orders do |t|
-  t.jsonb :data
-  t.belongs_to :building, index: true, foreign_key: true
+ActiveRecord::Schema.define do
+  drop_table :purchase_orders, if_exists: true
+  drop_table :buildings, if_exists: true
+  create_table :buildings do |t|
+    t.jsonb :data
+  end
+  create_table :purchase_orders do |t|
+    t.jsonb :data
+    t.belongs_to :building, index: true, foreign_key: true
+  end
 end
 
 # require 'simplecov'
@@ -129,5 +132,12 @@ class Building < ActiveRecord::Base
     %i[multiconstruction_jin]
   end
 
-end
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[name]
+  end
 
+  def self.ransackable_associations(_auth_object = nil)
+    []
+  end
+
+end

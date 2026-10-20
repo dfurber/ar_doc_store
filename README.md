@@ -294,6 +294,28 @@ end
 
 ## Contributing
 
+### Running tests
+
+The development bundle defaults to Rails 8.1. The gem's runtime requirement
+remains Active Record 6.1 or newer. CI covers Rails 6.1, 7.0, 7.1, 7.2, 8.0,
+and 8.1 with compatible Ruby versions.
+
+Create a dedicated PostgreSQL database and run:
+
+```sh
+bundle install
+DATABASE_URL=postgresql://postgres:postgres@localhost/ar_doc_store_test bundle exec rake test
+```
+
+The tests recreate the `buildings` and `purchase_orders` tables. Always use a
+dedicated test database. To test a different Rails series, resolve the bundle
+with that version and use the same variable when running tests:
+
+```sh
+RAILS_VERSION='~> 7.2.0' bundle update
+RAILS_VERSION='~> 7.2.0' bundle exec rake test
+```
+
 1. Fork it ( https://github.com/dfurber/ar_doc_store/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)

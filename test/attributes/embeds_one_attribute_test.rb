@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class EmbedsOneAttributeTest < MiniTest::Test
+class EmbedsOneAttributeTest < Minitest::Test
 
   def test_initialized_on_model_init
     entrance = Entrance.new name: 'Foo'

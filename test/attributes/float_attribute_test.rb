@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class FloatAttributeTest < MiniTest::Test
+class FloatAttributeTest < Minitest::Test
   
   def test_attribute_on_model_init
     b = Building.new height: 5.42

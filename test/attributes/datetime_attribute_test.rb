@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class DatetimeAttributeTest < MiniTest::Test
+class DatetimeAttributeTest < Minitest::Test
 
   def test_attribute_on_model_init
     inspected_at = Time.new(1984, 3, 6)

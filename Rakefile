@@ -8,7 +8,8 @@ end
 
 namespace :test do
   task :prepare_ar_doc_store do
-    config = { adapter: 'postgresql', database: 'ar_doc_store_test', username: 'postgres', password: 'postgres' }
+    config = ENV.fetch('DATABASE_URL', 'postgresql://postgres:postgres@localhost/ar_doc_store_test')
+    require 'logger'
     require 'active_record'
     ActiveRecord::Tasks::DatabaseTasks.create(config)
     ActiveRecord::Base.establish_connection(config)

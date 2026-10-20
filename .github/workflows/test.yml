@@ -1,0 +1,48 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: '3.1'
+            rails: '~> 6.1.0'
+          - ruby: '3.1'
+            rails: '~> 7.0.0'
+          - ruby: '3.2'
+            rails: '~> 7.1.0'
+          - ruby: '3.2'
+            rails: '~> 7.2.0'
+          - ruby: '3.4'
+            rails: '~> 8.0.0'
+          - ruby: '3.4'
+            rails: '~> 8.1.0'
+          - ruby: '4.0'
+            rails: '~> 8.1.0'
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ar_doc_store_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      RAILS_VERSION: ${{ matrix.rails }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost/ar_doc_store_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec rake test

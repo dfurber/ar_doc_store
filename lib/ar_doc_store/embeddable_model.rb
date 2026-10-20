@@ -92,7 +92,7 @@ module ArDocStore
       end
 
       def write_attribute(attribute, value)
-        attributes[attribute.to_s] = value
+        @attributes.write_from_user(attribute.to_s, value)
       end
 
       def to_param

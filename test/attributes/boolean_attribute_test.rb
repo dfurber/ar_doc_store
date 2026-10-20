@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class BooleanAttributeTest < MiniTest::Test
+class BooleanAttributeTest < Minitest::Test
   
   def test_attribute_on_model_init
     b = Building.new finished: true

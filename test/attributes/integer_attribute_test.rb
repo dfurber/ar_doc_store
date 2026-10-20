@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class IntegerAttributeTest < MiniTest::Test
+class IntegerAttributeTest < Minitest::Test
   
   def test_string_attribute_on_model_init
     b = Building.new stories: 5

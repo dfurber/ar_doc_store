@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class StringAttributeTest < MiniTest::Test
+class StringAttributeTest < Minitest::Test
   
   def test_attribute_on_model_init
     b = Building.new name: 'test'

@@ -1,6 +1,6 @@
 require_relative './test_helper'
 
-class ModelTest < MiniTest::Test
+class ModelTest < Minitest::Test
   def test_save_with_validation
     b = Building.new name: 'test'
     assert b.save

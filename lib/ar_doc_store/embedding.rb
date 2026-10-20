@@ -25,10 +25,8 @@ module ArDocStore
       # enabled records if they're marked_for_destruction? or destroyed.
       def embed_valid?(assn_name, record)
         unless valid = record.valid?
-          record.errors.each do |attribute, message|
-            attribute = "#{assn_name}.#{attribute}"
-            errors[attribute] << message
-            errors[attribute].uniq!
+          record.errors.each do |error|
+            errors.import(error, attribute: "#{assn_name}.#{error.attribute}")
           end
         end
         valid

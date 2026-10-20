@@ -1,6 +1,6 @@
 require_relative './../test_helper'
 
-class ArrayAttributeTest < MiniTest::Test
+class ArrayAttributeTest < Minitest::Test
   
   def test_attribute_on_model_init
     architects = %W{Bob John Billy Bob}
